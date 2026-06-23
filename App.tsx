@@ -1,14 +1,22 @@
-import { ScreenContent } from 'components/ScreenContent';
-import { StatusBar } from 'expo-status-bar';
+import { useEffect } from "react";
+import "./global.css"
+import { Text, View } from "react-native";
 
-import './global.css';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+ 
 export default function App() {
+
+
+  
   return (
-    <SafeAreaProvider>
-      <ScreenContent title="Home" path="App.tsx"></ScreenContent>
-      <StatusBar style="auto" />
-    </SafeAreaProvider>
+    <View className="flex-1 items-center justify-center bg-white">
+      <Text className="text-xl font-bold text-blue-500">
+        Welcome to Nativewisdnd!
+      </Text>
+      <Text className="bg-blue-400" onPress={()=>{alert("Hola")}}>
+        Hola Mundo desde Mi PC 
+      </Text>
+    </View>
+
+    
   );
 }
