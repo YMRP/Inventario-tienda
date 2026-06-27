@@ -5,6 +5,8 @@ import * as SQLite from 'expo-sqlite';
  * Android creará algo similar a:
  * inventory.db
  */
+
+//RESPONABILIDAD: ABRIR SQLITE SOLAMENTE
 const DATABASE_NAME = 'inventory.db';
 
 /**

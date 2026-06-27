@@ -1,22 +1,33 @@
 import { useEffect } from "react";
 import "./global.css"
 import { Text, View } from "react-native";
+import { initDatabase } from "@/database/initDatabase";
+import Login from "@/screens/Login";
+import AppNavigator from "@/navigation/AppNavigator";
+import { runMigrations } from "@/database/db";
+import { seedDatabase } from "@/database/seed";
 
- 
 export default function App() {
 
+  useEffect(()=>{
+    async function initialize() {
+      console.log("Entro al initialize")
+      await runMigrations()
+      console.log("A punto de entrar a seedDatabase")
+      await seedDatabase()
+      console.log("paso de seeddatabase")
+    }
+    initialize()
+  },[])
 
   
-  return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold text-blue-500">
-        Welcome to Nativewisdnd!
-      </Text>
-      <Text className="bg-blue-400" onPress={()=>{alert("Hola")}}>
-        Hola Mundo desde Mi PC 
-      </Text>
-    </View>
 
+  
+  
+  return (
+    <>
+    <AppNavigator/>
+    </>
     
   );
 }

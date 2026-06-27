@@ -1,18 +1,38 @@
-
 /*
-  responsabilidad: 
-  Crear tablas
-  Crear índices
-  Crear restricciones
+|--------------------------------------------------------------------------
+| MIGRATIONS
+|--------------------------------------------------------------------------
+|
+| Responsabilidad:
+|
+| - Crear tablas
+| - Crear índices
+| - Definir restricciones
+|
+| Cada elemento del arreglo representa UNA migración.
+| Esto facilita localizar errores cuando alguna migración falle.
+|
 */
-//RECORDAR VISITAR A GEPETO Y COMENZAR CON EL DESARROLLO
+
 export const migrations = [
+
+  /*
+  |--------------------------------------------------------------------------
+  | Activar llaves foráneas
+  |--------------------------------------------------------------------------
+  */
   `
   PRAGMA foreign_keys = ON;
   `,
 
+  /*
+  |--------------------------------------------------------------------------
+  | USERS
+  |--------------------------------------------------------------------------
+  */
   `
   CREATE TABLE IF NOT EXISTS users (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     username TEXT NOT NULL UNIQUE,
@@ -22,74 +42,118 @@ export const migrations = [
     password_hash TEXT NOT NULL,
 
     role TEXT NOT NULL
-      CHECK(role IN ('ADMIN', 'STANDARD')),
+      CHECK(role IN ('ADMIN','STANDARD')),
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP
+
   );
   `,
 
+  /*
+  |--------------------------------------------------------------------------
+  | CATEGORIES
+  |--------------------------------------------------------------------------
+  */
   `
   CREATE TABLE IF NOT EXISTS categories (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     name TEXT NOT NULL UNIQUE,
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP
+
   );
   `,
 
+  /*
+  |--------------------------------------------------------------------------
+  | BRAND CATALOG
+  |--------------------------------------------------------------------------
+  */
   `
   CREATE TABLE IF NOT EXISTS brand_catalog (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     name TEXT NOT NULL UNIQUE,
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP
+
   );
   `,
 
+  /*
+  |--------------------------------------------------------------------------
+  | COLORS
+  |--------------------------------------------------------------------------
+  */
   `
   CREATE TABLE IF NOT EXISTS colors (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     name TEXT NOT NULL UNIQUE,
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP
+
   );
   `,
 
+  /*
+  |--------------------------------------------------------------------------
+  | SIZES
+  |--------------------------------------------------------------------------
+  */
   `
   CREATE TABLE IF NOT EXISTS sizes (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     name TEXT NOT NULL UNIQUE,
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP
+
   );
   `,
-
+    /*
+  |--------------------------------------------------------------------------
+  | PRODUCTS
+  |--------------------------------------------------------------------------
+  */
   `
   CREATE TABLE IF NOT EXISTS products (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     name TEXT NOT NULL,
@@ -100,24 +164,43 @@ export const migrations = [
 
     category_id INTEGER NOT NULL,
 
-    sale_price REAL NOT NULL,
+    sale_price REAL NOT NULL
+      CHECK(sale_price >= 0),
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (brand_id)
       REFERENCES brand_catalog(id),
 
     FOREIGN KEY (category_id)
       REFERENCES categories(id)
+
   );
   `,
 
+  /*
+  |--------------------------------------------------------------------------
+  | PRODUCT VARIANTS
+  |--------------------------------------------------------------------------
+  |
+  | Cada variante representa una combinación única:
+  |
+  | Playera Nike
+  | Color: Negro
+  | Talla: M
+  |
+  | El stock se controla por variante.
+  |--------------------------------------------------------------------------
+  */
   `
-    CREATE TABLE IF NOT EXISTS product_variants (
+  CREATE TABLE IF NOT EXISTS product_variants (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     product_id INTEGER NOT NULL,
@@ -142,9 +225,11 @@ export const migrations = [
 
     active INTEGER NOT NULL DEFAULT 1,
 
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL
+      DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (product_id)
       REFERENCES products(id),
@@ -160,11 +245,17 @@ export const migrations = [
       color_id,
       size_id
     )
+
   );
-
-,
-
+  `,
+    /*
+  |--------------------------------------------------------------------------
+  | SALES
+  |--------------------------------------------------------------------------
+  */
+  `
   CREATE TABLE IF NOT EXISTS sales (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     user_id INTEGER NOT NULL,
@@ -177,11 +268,18 @@ export const migrations = [
 
     FOREIGN KEY (user_id)
       REFERENCES users(id)
+
   );
+  `,
 
-  ,
-
+  /*
+  |--------------------------------------------------------------------------
+  | SALE ITEMS
+  |--------------------------------------------------------------------------
+  */
+  `
   CREATE TABLE IF NOT EXISTS sale_items (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     sale_id INTEGER NOT NULL,
@@ -202,11 +300,18 @@ export const migrations = [
 
     FOREIGN KEY (variant_id)
       REFERENCES product_variants(id)
+
   );
+  `,
 
-  ,
-
+  /*
+  |--------------------------------------------------------------------------
+  | RESERVATIONS
+  |--------------------------------------------------------------------------
+  */
+  `
   CREATE TABLE IF NOT EXISTS reservations (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     customer_name TEXT NOT NULL,
@@ -236,11 +341,18 @@ export const migrations = [
 
     created_at TEXT NOT NULL
       DEFAULT CURRENT_TIMESTAMP
+
   );
+  `,
 
-  ,
-
+  /*
+  |--------------------------------------------------------------------------
+  | RESERVATION ITEMS
+  |--------------------------------------------------------------------------
+  */
+  `
   CREATE TABLE IF NOT EXISTS reservation_items (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     reservation_id INTEGER NOT NULL,
@@ -261,11 +373,21 @@ export const migrations = [
 
     FOREIGN KEY (variant_id)
       REFERENCES product_variants(id)
+
   );
+  `,
 
-  ,
-
+  /*
+  |--------------------------------------------------------------------------
+  | INVENTORY MOVEMENTS
+  |--------------------------------------------------------------------------
+  |
+  | Historial de todos los movimientos del inventario.
+  |--------------------------------------------------------------------------
+  */
+  `
   CREATE TABLE IF NOT EXISTS inventory_movements (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     variant_id INTEGER NOT NULL,
@@ -296,53 +418,60 @@ export const migrations = [
 
     FOREIGN KEY (user_id)
       REFERENCES users(id)
+
   );
 
-  ,
+  
+  `,
+    /*
+  |--------------------------------------------------------------------------
+  | ÍNDICES
+  |--------------------------------------------------------------------------
+  |
+  | Los índices aceleran las búsquedas.
+  | No almacenan información nueva.
+  | Solamente ayudan a que SQLite encuentre los registros más rápido.
+  |
+  */
 
+  /*
+  | Buscar productos por categoría.
+  */
+  `
   CREATE INDEX IF NOT EXISTS idx_products_category
   ON products(category_id);
-  `
-  ,
+  `,
+
+  /*
+  | Buscar productos por marca.
+  */
   `
   CREATE INDEX IF NOT EXISTS idx_products_brand
   ON products(brand_id);
-  `
-  ,
+  `,
+
+  /*
+  | Buscar variantes por código de barras.
+  */
   `
   CREATE INDEX IF NOT EXISTS idx_variant_barcode
   ON product_variants(barcode);
-  `
-  ,
+  `,
+
+  /*
+  | Buscar ventas por fecha.
+  */
   `
   CREATE INDEX IF NOT EXISTS idx_sales_date
   ON sales(created_at);
-  `
-  ,
+  `,
+
+  /*
+  | Buscar apartados por estado.
+  */
   `
   CREATE INDEX IF NOT EXISTS idx_reservations_status
   ON reservations(status);
-
-
-
-
-
-  
   `
-];
 
-/*
-users
-categories
-brand_catalog
-colors
-sizes
-products
-product_variants
-sales
-sale_items
-reservations
-reservation_items
-inventory_movements
-5 índices
-*/
+];
