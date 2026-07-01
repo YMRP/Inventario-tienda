@@ -6,6 +6,7 @@ import { RootStackParamList } from "@/types/types";
 import Dashboard from "@/screens/Dashboard";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
+import NewProduct from "@/screens/NewProduct";
 
 
 /**
@@ -40,6 +41,11 @@ export default function AppNavigator() {
                     name="Dashboard"
                     component={Dashboard}
                 />
+
+                <Stack.Screen
+                name="NewProduct"
+                component={NewProduct}
+                />  
 
             </Stack.Navigator>
 

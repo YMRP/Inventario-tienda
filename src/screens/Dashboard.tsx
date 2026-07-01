@@ -76,7 +76,7 @@ const navigation = useNavigation<DashboardNavigationProp>();  const user = getCu
               Administración
             </Text>
 
-            <TouchableOpacity className="bg-gray-800 p-4 rounded-xl">
+            <TouchableOpacity className="bg-gray-800 p-4 rounded-xl" onPress={()=>{navigation.navigate("NewProduct")}}>
               <Text className="text-white font-bold">
                 Productos
               </Text>

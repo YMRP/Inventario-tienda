@@ -39,5 +39,23 @@ export type LoginResult = {
 export type RootStackParamList = {
   Login: undefined;
   Dashboard: undefined;
+      NewProduct: undefined;
+
 };
+
+export type Product = {
+  id: number;
+  name: string;
+  description: string | null;
+  brand_id: number;
+  category_id: number;
+  sale_price: number;
+  active: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface CatalogItem {
+  id: number;
+  name: string;
+}
 
