@@ -1,117 +1,93 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { logout, getCurrentUser } from "@/auth/auth";
-import { RootStackParamList } from "@/types/types";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { logout, getCurrentUser } from '@/auth/auth';
+import { RootStackParamList } from '@/types/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useEffect } from 'react';
+import { getInventoryProducts } from '@/repositories/productRepository';
 
 export default function Dashboard() {
-type DashboardNavigationProp =
-  NativeStackNavigationProp<RootStackParamList, "Dashboard">;
+  type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
-const navigation = useNavigation<DashboardNavigationProp>();  const user = getCurrentUser();
+  const navigation = useNavigation<DashboardNavigationProp>();
+  const user = getCurrentUser();
 
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === 'ADMIN';
+
 
   function handleLogout() {
-    console.log("CERRANDO SESION")
+    console.log('CERRANDO SESION');
     logout();
-    navigation.replace("Login");
+    navigation.replace('Login');
   }
 
   return (
     <View className="flex-1 bg-white px-6 pt-12">
-
       {/* HEADER */}
-      <Text className="text-2xl font-bold text-blue-700">
-        Inventario Local
-      </Text>
+      <Text className="text-2xl font-bold text-blue-700">Inventario Local</Text>
 
-      <Text className="text-gray-600 mt-1">
-        Usuario: {user?.full_name}
-      </Text>
+      <Text className="mt-1 text-gray-600">Usuario: {user?.full_name}</Text>
 
-      <Text className="text-gray-500 mb-6">
-        Rol: {user?.role}
-      </Text>
+      <Text className="mb-6 text-gray-500">Rol: {user?.role}</Text>
 
       {/* ACCIONES PRINCIPALES */}
-      <Text className="font-bold text-lg mb-3">
-        Acciones
-      </Text>
+      <Text className="mb-3 text-lg font-bold">Acciones</Text>
 
       <View className="gap-3">
-
         {/* CONSULTA INVENTARIO (TODOS) */}
-        <TouchableOpacity className="bg-blue-400 p-4 rounded-xl">
-          <Text className="text-white font-bold">
-            Consultar Inventario
-          </Text>
+        <TouchableOpacity className="rounded-xl bg-blue-400 p-4"     onPress={() => navigation.navigate("inventory")}
+>
+          <Text className="font-bold text-white">Consultar Inventario</Text>
         </TouchableOpacity>
 
         {/* VENTAS (USUARIO Y ADMIN) */}
-        <TouchableOpacity className="bg-green-600 p-4 rounded-xl">
-          <Text className="text-white font-bold">
-            Registrar Venta
-          </Text>
+        <TouchableOpacity className="rounded-xl bg-green-600 p-4">
+          <Text className="font-bold text-white">Registrar Venta</Text>
         </TouchableOpacity>
 
         {/* APARTADOS */}
-        <TouchableOpacity className="bg-yellow-500 p-4 rounded-xl">
-          <Text className="text-white font-bold">
-            Apartados
-          </Text>
+        <TouchableOpacity className="rounded-xl bg-yellow-500 p-4">
+          <Text className="font-bold text-white">Apartados</Text>
         </TouchableOpacity>
 
         {/* ESCANER */}
-        <TouchableOpacity className="bg-purple-600 p-4 rounded-xl">
-          <Text className="text-white font-bold">
-            Escanear Código de Barras
-          </Text>
+        <TouchableOpacity className="rounded-xl bg-purple-600 p-4" onPress={()=>{navigation.navigate('Scan')}}>
+          <Text className="font-bold text-white">Escanear Código de Barras</Text>
         </TouchableOpacity>
 
         {/* ADMIN ONLY */}
         {isAdmin && (
           <>
-            <Text className="font-bold text-lg mt-4 mb-2">
-              Administración
-            </Text>
+            <Text className="mb-2 mt-4 text-lg font-bold">Administración</Text>
 
-            <TouchableOpacity className="bg-gray-800 p-4 rounded-xl" onPress={()=>{navigation.navigate("NewProduct")}}>
-              <Text className="text-white font-bold">
-                Productos
-              </Text>
+            <TouchableOpacity
+              className="rounded-xl bg-gray-800 p-4"
+              onPress={() => {
+                navigation.navigate('NewProduct');
+              }}>
+              <Text className="font-bold text-white">Productos</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-gray-800 p-4 rounded-xl">
-              <Text className="text-white font-bold">
+            <TouchableOpacity className="rounded-xl bg-gray-800 p-4">
+              <Text className="font-bold text-white">
                 Catálogos (Categorías / Marcas / Colores / Tallas)
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-gray-800 p-4 rounded-xl">
-              <Text className="text-white font-bold">
-                Reportes
-              </Text>
+            <TouchableOpacity className="rounded-xl bg-gray-800 p-4">
+              <Text className="font-bold text-white">Reportes</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-gray-800 p-4 rounded-xl">
-              <Text className="text-white font-bold">
-                Respaldo de Base de Datos
-              </Text>
+            <TouchableOpacity className="rounded-xl bg-gray-800 p-4">
+              <Text className="font-bold text-white">Respaldo de Base de Datos</Text>
             </TouchableOpacity>
           </>
         )}
 
         {/* LOGOUT */}
-        <TouchableOpacity
-          className="bg-red-600 p-4 rounded-xl mt-6"
-          onPress={handleLogout}
-        >
-          <Text className="text-white font-bold text-center">
-            Cerrar Sesión
-          </Text>
+        <TouchableOpacity className="mt-6 rounded-xl bg-red-600 p-4" onPress={handleLogout}>
+          <Text className="text-center font-bold text-white">Cerrar Sesión</Text>
         </TouchableOpacity>
-
       </View>
     </View>
   );
