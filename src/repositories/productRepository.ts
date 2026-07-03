@@ -1,6 +1,6 @@
-import { execute, getAll, getOne } from "@/database/db";
-import { CatalogItem, Product, ProductDetail } from "@/types/types";
-import { InventoryProduct } from "@/types/types";
+import { execute, getAll, getOne } from '@/database/db';
+import { CatalogItem, Product, ProductDetail } from '@/types/types';
+import { InventoryProduct } from '@/types/types';
 
 /**
  * Obtiene todas las categorías activas.
@@ -44,7 +44,6 @@ export async function createProduct(
   categoryId: number,
   salePrice: number
 ): Promise<number> {
-
   const result = await execute(
     `
     INSERT INTO products
@@ -57,13 +56,7 @@ export async function createProduct(
     )
     VALUES (?, ?, ?, ?, ?)
     `,
-    [
-      name,
-      description,
-      brandId,
-      categoryId,
-      salePrice
-    ]
+    [name, description, brandId, categoryId, salePrice]
   );
 
   return result.lastInsertRowId;
@@ -72,7 +65,37 @@ export async function createProduct(
 /**
  * Obtiene todos los productos para consulta de inventario.
  */
-export async function getInventoryProducts(): Promise<InventoryProduct[]> {
+export async function getInventoryProducts(
+  filter: 'ALL' | 'LOW_STOCK' | 'OUT_OF_STOCK' = 'ALL'
+): Promise<InventoryProduct[]> {
+  let whereClause = `
+WHERE p.active = 1
+`;
+
+if (filter === 'LOW_STOCK') {
+  whereClause += `
+  AND EXISTS (
+    SELECT 1
+    FROM product_variants pv
+    WHERE pv.product_id = p.id
+      AND pv.available_stock <= pv.minimum_stock
+      AND pv.available_stock > 0
+  )
+  `;
+}
+
+if (filter === 'OUT_OF_STOCK') {
+  whereClause += `
+  AND EXISTS (
+    SELECT 1
+    FROM product_variants pv
+    WHERE pv.product_id = p.id
+      AND pv.available_stock = 0
+  )
+  `;
+}
+
+
 
   return await getAll(
     `
@@ -105,8 +128,8 @@ export async function getInventoryProducts(): Promise<InventoryProduct[]> {
     LEFT JOIN product_variants v
       ON v.product_id = p.id
 
-    WHERE p.active = 1
-
+    ${whereClause}
+    
     GROUP BY
       p.id,
       p.name,
@@ -118,16 +141,12 @@ export async function getInventoryProducts(): Promise<InventoryProduct[]> {
       p.name
     `
   );
-
 }
 
 /**
  * Obtiene la información principal de un producto.
  */
-export async function getProductDetail(
-  productId: number
-): Promise<ProductDetail | null> {
-
+export async function getProductDetail(productId: number): Promise<ProductDetail | null> {
   return await getOne(
     `
     SELECT
@@ -156,7 +175,6 @@ export async function getProductDetail(
     `,
     [productId]
   );
-
 }
 
 /**
@@ -170,7 +188,6 @@ export async function updateProduct(
   categoryId: number,
   salePrice: number
 ): Promise<void> {
-
   await execute(
     `
     UPDATE products
@@ -183,14 +200,6 @@ export async function updateProduct(
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
     `,
-    [
-      name,
-      description,
-      brandId,
-      categoryId,
-      salePrice,
-      productId
-    ]
+    [name, description, brandId, categoryId, salePrice, productId]
   );
-
 }

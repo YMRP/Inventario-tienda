@@ -6,13 +6,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { getVariantByBarcode } from '@/repositories/variantRepository';
 import { createSale } from '@/repositories/SalesRepository';
 import { getCurrentUser } from '@/auth/auth';
-
-type CartItem = {
-  variantId: number;
-  name: string;
-  unitPrice: number;
-  quantity: number;
-};
+import { CartItem } from '@/types/types';
 
 export default function ScanResultScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -48,6 +42,50 @@ export default function ScanResultScreen() {
     });
   }
 
+  function decreaseQuantity(variantId: number) {
+    setCart((prev) =>
+      prev
+        .map((item) =>
+          item.variantId === variantId
+            ? {
+                ...item,
+                quantity: item.quantity - 1,
+              }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  }
+
+  function increaseQuantity(variantId: number) {
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.variantId !== variantId) {
+          return item;
+        }
+
+        if (item.quantity >= item.availableStock) {
+          Alert.alert('Stock insuficiente', `Solo hay ${item.availableStock} piezas disponibles.`);
+
+          return item;
+        }
+
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      })
+    );
+  }
+
+  function removeItem(variantId: number) {
+    setCart((prev) => prev.filter((item) => item.variantId !== variantId));
+  }
+
+  function clearCart() {
+    setCart([]);
+  }
+
   async function searchBarcode(code: string) {
     if (!code.trim()) {
       return;
@@ -67,6 +105,9 @@ export default function ScanResultScreen() {
         name: variant.product_name,
         unitPrice: variant.sale_price,
         quantity: 1,
+        availableStock: variant.available_stock,
+        color: '',
+        size: '',
       });
 
       setBarcode('');
@@ -109,10 +150,19 @@ export default function ScanResultScreen() {
       Alert.alert('Venta realizada');
 
       setCart([]);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
 
-      Alert.alert('Error al procesar venta');
+      if (error?.message === 'Stock insuficiente') {
+        Alert.alert(
+          'Stock insuficiente',
+          'Uno de los productos ya no tiene existencias suficientes.'
+        );
+
+        return;
+      }
+
+      Alert.alert('Error', 'No fue posible completar la venta.');
     }
   }
 
@@ -188,24 +238,38 @@ export default function ScanResultScreen() {
 
       <View className="bg-white p-4">
         <Text className="mb-2 text-xl font-bold">Carrito</Text>
-
         <FlatList
           data={cart}
           keyExtractor={(item) => item.variantId.toString()}
           renderItem={({ item }) => (
-            <View className="flex-row justify-between py-1">
-              <Text>
-                {item.name} x{item.quantity}
+            <View className="mb-4 rounded-lg border bg-gray-50 p-3">
+              <Text className="text-lg font-semibold">{item.name}</Text>
+
+              <Text className="text-gray-600">
+                {item.color} • Talla {item.size}
               </Text>
 
-              <Text>${(item.unitPrice * item.quantity).toFixed(2)}</Text>
+              <Text className="mt-1">Precio: ${item.unitPrice.toFixed(2)}</Text>
+
+              <Text className="mt-1">Stock disponible: {item.availableStock}</Text>
+
+              <Text className="mt-1">Cantidad: {item.quantity}</Text>
+
+              <Text className="mb-3">Total: ${(item.unitPrice * item.quantity).toFixed(2)}</Text>
+
+              <View className="flex-row justify-between">
+                <Button title="-" onPress={() => decreaseQuantity(item.variantId)} />
+                <Button title="+" onPress={() => increaseQuantity(item.variantId)} />
+                <Button title="Eliminar" color="red" onPress={() => removeItem(item.variantId)} />
+              </View>
             </View>
           )}
         />
-
         <Text className="mt-3 text-lg font-bold">Total: ${total.toFixed(2)}</Text>
-
         <Button title="Confirmar venta" onPress={handleCheckout} />
+        <View className="mt-3">
+          <Button title="Vaciar carrito" color="red" onPress={clearCart} />
+        </View>
       </View>
     </View>
   );

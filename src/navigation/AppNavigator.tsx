@@ -13,6 +13,8 @@ import InventoryScreen from '@/screens/InventoryScreen';
 import ProductDetailScreen from '@/screens/ProductDetailScreen';
 import EditProductScreen from '@/screens/EditScreen';
 import ScanResultScreen from '@/screens/ScanResultScreen';
+import SalesScreen from '@/screens/SalesScreen';
+import SaleDetailScreen from '@/screens/SaleDetailScreen';
 
 /**
  * Creamos el Stack Navigator.
@@ -42,8 +44,11 @@ export default function AppNavigator() {
         <Stack.Screen name="inventory" component={InventoryScreen} />
         <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
         <Stack.Screen name="EditProduct" component={EditProductScreen} />
-        <Stack.Screen name="ScanResult"component={ScanResultScreen}/>
+        <Stack.Screen name="ScanResult" component={ScanResultScreen} />
         <Stack.Screen name="Scan" component={ScanResultScreen} />
+        <Stack.Screen name="Sales" component={SalesScreen} />
+
+        <Stack.Screen name="SaleDetail" component={SaleDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

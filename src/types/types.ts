@@ -9,7 +9,10 @@ export type VariantBarcodeResult = {
   product_id: number;
   barcode: string;
   product_name: string;
+  color: string;
+  size: string;
   sale_price: number;
+  available_stock: number;
 };
 
 export type User = {
@@ -39,10 +42,12 @@ export type LoginResult = {
 export type CartItem = {
   variantId: number;
   name: string;
+  color: string;
+  size: string;
   unitPrice: number;
   quantity: number;
+  availableStock: number;
 };
-
 /**
  * Lista de pantallas de la aplicación.
  *
@@ -55,7 +60,7 @@ export type RootStackParamList = {
   Login: undefined;
   Dashboard: undefined;
   NewProduct: undefined;
-  inventory: undefined;
+  inventory: { filter?: 'ALL' | 'LOW_STOCK' | 'OUT_OF_STOCK' } | undefined;
   NewVariant: {
     productId: number;
   };
@@ -70,6 +75,12 @@ export type RootStackParamList = {
 
   ScanResult: {
     productId: number;
+  };
+
+  Sales: undefined;
+
+  SaleDetail: {
+    saleId: number;
   };
 };
 
@@ -122,4 +133,12 @@ export type ProductVariantDetail = {
   barcode: string;
   available_stock: number;
   minimum_stock: number;
+};
+
+export type DashboardStats = {
+  todaySales: number;
+  products: number;
+  variants: number;
+  lowStock: number;
+  outOfStock: number;
 };

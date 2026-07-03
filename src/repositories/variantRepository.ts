@@ -75,7 +75,7 @@ function calculateEAN13CheckDigit(code12: string): string {
  * Genera un código EAN-13 válido.
  */
 function generateBarcode(): string {
-  let code12 = "";
+  let code12 = '';
 
   for (let i = 0; i < 12; i++) {
     code12 += Math.floor(Math.random() * 10);
@@ -197,13 +197,34 @@ export async function getVariantByBarcode(barcode: string): Promise<VariantBarco
   return await getOne<VariantBarcodeResult>(
     `
     SELECT
-  v.id,
-  v.product_id,
-  v.barcode,
-  p.name AS product_name,
-  p.sale_price
+
+    v.id,
+
+    v.product_id,
+
+    v.barcode,
+
+    v.available_stock,
+
+    p.name AS product_name,
+
+    p.sale_price,
+
+    c.name AS color,
+
+    s.name AS size
+
 FROM product_variants v
-INNER JOIN products p ON p.id = v.product_id
+
+INNER JOIN products p
+ON p.id = v.product_id
+
+INNER JOIN colors c
+ON c.id = v.color_id
+
+INNER JOIN sizes s
+ON s.id = v.size_id
+
 WHERE v.barcode = ?
     `,
     [barcode]

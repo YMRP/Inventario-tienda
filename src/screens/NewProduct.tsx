@@ -40,8 +40,7 @@ export default function NewProduct() {
       </Text>
 
       <ProductForm
-        onSaved={handleSaved}
-      />
+        onSaved={handleSaved} mode={'create'}      />
 
     </View>
   );

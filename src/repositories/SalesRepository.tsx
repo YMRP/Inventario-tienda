@@ -1,70 +1,166 @@
-import { execute } from '@/database/db';
+import { executeTransaction, getAll, getOne } from '@/database/db';
+import { useState } from 'react';
 
 export async function createSale(
   userId: number,
-  items: {
-    variantId: number;
-    quantity: number;
-    unitPrice: number;
-  }[]
+  items: { variantId: number; quantity: number; unitPrice: number }[]
 ) {
+  const [dayStats, setDayStats] = useState({
+    total: 0,
+    count: 0,
+  });
   let total = 0;
 
-  // calcular total
   for (const item of items) {
     total += item.quantity * item.unitPrice;
   }
 
-  // 1. crear venta
-  const saleResult = await execute(
-    `
-    INSERT INTO sales (user_id, total)
-    VALUES (?, ?)
-    `,
-    [userId, total]
-  );
+  let saleId = 0;
 
-  const saleId = saleResult.lastInsertRowId;
-
-  // 2. insertar items + actualizar stock
-  for (const item of items) {
-    const subtotal = item.quantity * item.unitPrice;
-
-    await execute(
+  await executeTransaction(async (db) => {
+    // Crear venta
+    const saleResult = await db.runAsync(
       `
-      INSERT INTO sale_items
-      (sale_id, variant_id, quantity, unit_price, subtotal)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO sales
+      (
+        user_id,
+        total
+      )
+      VALUES (?, ?)
       `,
-      [
-        saleId,
-        item.variantId,
-        item.quantity,
-        item.unitPrice,
-        subtotal,
-      ]
+      [userId, total]
     );
 
-    // descontar stock
-    await execute(
-      `
-      UPDATE product_variants
-      SET available_stock = available_stock - ?
-      WHERE id = ?
-      `,
-      [item.quantity, item.variantId]
-    );
+    saleId = saleResult.lastInsertRowId;
 
-    // registrar movimiento
-    await execute(
-      `
-      INSERT INTO inventory_movements
-      (variant_id, movement_type, quantity, notes, user_id)
-      VALUES (?, 'SALE', ?, 'Venta', ?)
-      `,
-      [item.variantId, item.quantity, userId]
-    );
-  }
+    // Insertar artículos
+    for (const item of items) {
+      const subtotal = item.quantity * item.unitPrice;
+
+      await db.runAsync(
+        `
+        INSERT INTO sale_items
+        (
+          sale_id,
+          variant_id,
+          quantity,
+          unit_price,
+          subtotal
+        )
+        VALUES (?, ?, ?, ?, ?)
+        `,
+        [saleId, item.variantId, item.quantity, item.unitPrice, subtotal]
+      );
+
+      // Descontar inventario
+      // Descontar inventario únicamente si existe suficiente stock
+      const result = await db.runAsync(
+        `
+  UPDATE product_variants
+  SET available_stock = available_stock - ?
+  WHERE
+      id = ?
+  AND available_stock >= ?
+  `,
+        [item.quantity, item.variantId, item.quantity]
+      );
+
+      if (result.changes === 0) {
+        throw new Error('Stock insuficiente');
+      }
+
+      // Registrar movimiento
+      await db.runAsync(
+        `
+        INSERT INTO inventory_movements
+        (
+          variant_id,
+          movement_type,
+          quantity,
+          notes,
+          user_id
+        )
+        VALUES
+        (?, 'SALE', ?, 'Venta', ?)
+        `,
+        [item.variantId, item.quantity, userId]
+      );
+    }
+  });
 
   return saleId;
+}
+
+export async function getSalesTotalByDate(date?: string) {
+  return await getOne<{ total: number; count: number }>(
+    `
+    SELECT
+      COALESCE(SUM(total), 0) AS total,
+      COUNT(*) AS count
+    FROM sales
+    WHERE (? IS NULL OR DATE(created_at) = DATE(?))
+    `,
+    [date ?? null, date ?? null]
+  );
+}
+
+export async function getSalesHistory(date?: string) {
+  return await getAll(
+    `
+    SELECT
+      s.id,
+      s.total,
+      s.created_at,
+      u.full_name AS user_name
+    FROM sales s
+    LEFT JOIN users u ON u.id = s.user_id
+    WHERE (? IS NULL OR DATE(s.created_at) = DATE(?))
+    ORDER BY s.created_at DESC
+    `,
+    [date ?? null, date ?? null]
+  );
+}
+
+export async function getSaleDetail(saleId: number) {
+  return await getAll(
+    `
+    SELECT
+      si.variant_id,
+      p.name AS product_name,
+      si.quantity,
+      si.unit_price,
+      si.subtotal,
+      c.name AS color,
+      sz.name AS size
+    FROM sale_items si
+    INNER JOIN product_variants v ON v.id = si.variant_id
+    INNER JOIN products p ON p.id = v.product_id
+    LEFT JOIN colors c ON c.id = v.color_id
+    LEFT JOIN sizes sz ON sz.id = v.size_id
+    WHERE si.sale_id = ?
+    `,
+    [saleId]
+  );
+}
+
+
+export async function getTopProductsByDate(date?: string) {
+  return await getAll(
+    `
+    SELECT
+      p.id,
+      p.name,
+      SUM(si.quantity) AS total_sold,
+      SUM(si.subtotal) AS total_revenue
+    FROM sale_items si
+    INNER JOIN sales s ON s.id = si.sale_id
+    INNER JOIN product_variants v ON v.id = si.variant_id
+    INNER JOIN products p ON p.id = v.product_id
+    WHERE (? IS NULL OR DATE(s.created_at) = DATE(?))
+    GROUP BY p.id, p.name
+    ORDER BY total_sold DESC
+    LIMIT 5
+    `,
+    [date ?? null, date ?? null]
+  );
 }

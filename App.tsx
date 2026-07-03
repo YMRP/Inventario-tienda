@@ -6,6 +6,7 @@ import Login from "@/screens/Login";
 import AppNavigator from "@/navigation/AppNavigator";
 import { runMigrations } from "@/database/db";
 import { seedDatabase } from "@/database/seed";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function App() {
 
@@ -25,9 +26,9 @@ export default function App() {
   
   
   return (
-    <>
+    <SafeAreaProvider>
     <AppNavigator/>
-    </>
+    </SafeAreaProvider>
     
   );
 }
