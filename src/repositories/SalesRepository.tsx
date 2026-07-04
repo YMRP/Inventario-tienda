@@ -1,14 +1,10 @@
 import { executeTransaction, getAll, getOne } from '@/database/db';
-import { useState } from 'react';
+import { getCurrentDateTime } from '@/utils/date';
 
 export async function createSale(
   userId: number,
   items: { variantId: number; quantity: number; unitPrice: number }[]
 ) {
-  const [dayStats, setDayStats] = useState({
-    total: 0,
-    count: 0,
-  });
   let total = 0;
 
   for (const item of items) {
@@ -16,22 +12,36 @@ export async function createSale(
   }
 
   let saleId = 0;
+  const createdAt = getCurrentDateTime();
 
   await executeTransaction(async (db) => {
     // Crear venta
     const saleResult = await db.runAsync(
       `
       INSERT INTO sales
-      (
-        user_id,
-        total
-      )
-      VALUES (?, ?)
+(
+  user_id,
+  total,
+  created_at
+)
+VALUES (?, ?, ?)
       `,
-      [userId, total]
+      [userId, total, createdAt]
     );
 
     saleId = saleResult.lastInsertRowId;
+    const sale = await db.getFirstAsync(
+  `
+  SELECT created_at
+  FROM sales
+  WHERE id = ?
+  `,
+  [saleId]
+);
+
+console.log('createdAt enviado:', createdAt);
+console.log('Registro guardado:', sale);
+    console.log('createdAt enviado:', createdAt);
 
     // Insertar artículos
     for (const item of items) {
@@ -72,18 +82,19 @@ export async function createSale(
       // Registrar movimiento
       await db.runAsync(
         `
-        INSERT INTO inventory_movements
-        (
-          variant_id,
-          movement_type,
-          quantity,
-          notes,
-          user_id
-        )
-        VALUES
-        (?, 'SALE', ?, 'Venta', ?)
+      INSERT INTO inventory_movements
+(
+  variant_id,
+  movement_type,
+  quantity,
+  notes,
+  user_id,
+  created_at
+)
+VALUES
+(?, 'SALE', ?, 'Venta', ?, ?)
         `,
-        [item.variantId, item.quantity, userId]
+        [item.variantId, item.quantity, userId, createdAt]
       );
     }
   });
@@ -105,6 +116,7 @@ export async function getSalesTotalByDate(date?: string) {
 }
 
 export async function getSalesHistory(date?: string) {
+  console.log('Hora del dispositivo:', getCurrentDateTime());
   return await getAll(
     `
     SELECT
@@ -142,7 +154,6 @@ export async function getSaleDetail(saleId: number) {
     [saleId]
   );
 }
-
 
 export async function getTopProductsByDate(date?: string) {
   return await getAll(

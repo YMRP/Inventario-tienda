@@ -1,6 +1,6 @@
 import { execute, getAll, getOne, executeTransaction } from '@/database/db';
 import { ReservationDetailItem, ReservationProps } from '@/types/types';
-
+import { getCurrentDateTime } from '@/utils/date';
 
 export async function createReservation(
   customerName: string,
@@ -13,38 +13,42 @@ export async function createReservation(
   }[]
 ) {
   let total = 0;
-
+  const createdAt = getCurrentDateTime();
   for (const item of items) {
     total += item.quantity * item.unitPrice;
   }
 
   // 📅 calcular vencimiento
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + daysToHold);
+  const expiresDate = new Date();
 
+  expiresDate.setDate(expiresDate.getDate() + daysToHold);
+
+  const expiresAt = `${expiresDate.getFullYear()}-${String(expiresDate.getMonth() + 1).padStart(
+    2,
+    '0'
+  )}-${String(expiresDate.getDate()).padStart(2, '0')} ${String(expiresDate.getHours()).padStart(
+    2,
+    '0'
+  )}:${String(expiresDate.getMinutes()).padStart(2, '0')}:${String(
+    expiresDate.getSeconds()
+  ).padStart(2, '0')}`;
   // 1. crear reservation
   const result = await execute(
     `
     INSERT INTO reservations (
-      customer_name,
-      customer_phone,
-      reservation_total,
-      deposit,
-      remaining_balance,
-      due_date,
-      status,
-      expires_at
-    )
-    VALUES (?, ?, ?, 0, ?, ?, 'ACTIVE', ?)
+    customer_name,
+    customer_phone,
+    reservation_total,
+    deposit,
+    remaining_balance,
+    due_date,
+    status,
+    expires_at,
+    created_at
+)
+VALUES (?, ?, ?, 0, ?, ?, 'ACTIVE', ?, ?)
     `,
-    [
-      customerName,
-      customerPhone,
-      total,
-      total,
-      expiresAt.toISOString(),
-      expiresAt.toISOString(),
-    ]
+    [customerName, customerPhone, total, total, expiresAt, expiresAt, createdAt]
   );
 
   const reservationId = result.lastInsertRowId;
@@ -65,13 +69,7 @@ export async function createReservation(
       )
       VALUES (?, ?, ?, ?, ?)
       `,
-      [
-        reservationId,
-        item.variantId,
-        item.quantity,
-        item.unitPrice,
-        subtotal,
-      ]
+      [reservationId, item.variantId, item.quantity, item.unitPrice, subtotal]
     );
 
     // 📉 mover stock a reservado
@@ -82,11 +80,7 @@ export async function createReservation(
           reserved_stock = reserved_stock + ?
       WHERE id = ?
       `,
-      [
-        item.quantity,
-        item.quantity,
-        item.variantId,
-      ]
+      [item.quantity, item.quantity, item.variantId]
     );
   }
 
@@ -110,7 +104,9 @@ export async function getReservations() {
   );
 }
 
-export async function getReservationDetail(reservationId: number): Promise <ReservationDetailItem[]> {
+export async function getReservationDetail(
+  reservationId: number
+): Promise<ReservationDetailItem[]> {
   return await getAll<ReservationDetailItem>(
     `
     SELECT
@@ -152,8 +148,6 @@ export async function getReservationDetail(reservationId: number): Promise <Rese
   );
 }
 
-
-
 export async function getAllReservations(): Promise<ReservationProps[]> {
   return await getAll<ReservationProps>(
     `
@@ -171,8 +165,27 @@ export async function getAllReservations(): Promise<ReservationProps[]> {
   );
 }
 
+export async function getReservationById(reservationId: number) {
+  return await getOne<ReservationProps>(
+    `
+    SELECT
+      id,
+      customer_name,
+      customer_phone,
+      reservation_total,
+      status,
+      expires_at,
+      created_at
+    FROM reservations
+    WHERE id = ?
+    `,
+    [reservationId]
+  );
+}
+
 export async function convertReservationToSale(reservationId: number, userId: number) {
   await executeTransaction(async (db) => {
+    const createdAt = getCurrentDateTime();
     const items = await db.getAllAsync(
       `
       SELECT *
@@ -190,10 +203,14 @@ export async function convertReservationToSale(reservationId: number, userId: nu
 
     const saleResult = await db.runAsync(
       `
-      INSERT INTO sales (user_id, total)
-      VALUES (?, ?)
+     INSERT INTO sales (
+    user_id,
+    total,
+    created_at
+)
+VALUES (?, ?, ?)
       `,
-      [userId, total]
+      [userId, total, createdAt]
     );
 
     const saleId = saleResult.lastInsertRowId;
@@ -231,15 +248,76 @@ export async function convertReservationToSale(reservationId: number, userId: nu
     );
   });
 }
+export async function cancelReservation(reservationId: number) {
+  await executeTransaction(async (db) => {
+    const reservation = await db.getFirstAsync(
+      `
+  SELECT status
+  FROM reservations
+  WHERE id = ?
+  `,
+      [reservationId]
+    );
 
+    if (!reservation || reservation.status !== 'ACTIVE') {
+      throw new Error('Este apartado ya no está activo.');
+    }
+    // Obtener productos del apartado
+    const items = (await db.getAllAsync(
+      `
+      SELECT
+        variant_id,
+        quantity
+      FROM reservation_items
+      WHERE reservation_id = ?
+      `,
+      [reservationId]
+    )) as {
+      variant_id: number;
+      quantity: number;
+    }[];
+
+    // Regresar el stock reservado al disponible
+    for (const item of items) {
+      await db.runAsync(
+        `
+        UPDATE product_variants
+SET
+  available_stock = available_stock + ?,
+  reserved_stock = reserved_stock - ?
+WHERE
+  id = ?
+  AND reserved_stock >= ?
+        `,
+        [item.quantity, item.quantity, item.variant_id, item.quantity]
+      );
+    }
+
+    // Marcar el apartado como cancelado
+    await db.runAsync(
+      `
+      UPDATE reservations
+      SET status = 'CANCELLED'
+      WHERE id = ?
+      `,
+      [reservationId]
+    );
+  });
+}
 export async function expireReservations() {
   // 1. obtener apartados vencidos
-  const expired = await getAll<{ id: number }>(`
-    SELECT id
-    FROM reservations
-    WHERE status = 'ACTIVE'
-    AND datetime(expires_at) < datetime('now')
-    `);
+  const now = getCurrentDateTime();
+
+  // 1. obtener apartados vencidos
+  const expired = await getAll<{ id: number }>(
+    `
+  SELECT id
+  FROM reservations
+  WHERE status = 'ACTIVE'
+  AND expires_at < ?
+  `,
+    [now]
+  );
 
   if (!expired.length) return;
 
@@ -280,4 +358,3 @@ export async function expireReservations() {
     );
   }
 }
-

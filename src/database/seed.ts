@@ -1,4 +1,3 @@
-
 import { hashPassword } from '@/utils/hash';
 import { execute, getOne, getAll } from './db';
 
@@ -7,24 +6,25 @@ import { execute, getOne, getAll } from './db';
  * Inserta datos iniciales.
  */
 export async function seedDatabase() {
-  console.log("Entro al seed database")
+ 
+
+  console.log('Entro al seed database');
+
   await seedAdmin();
 
-  console.log("seed admin")
+  console.log('seed admin');
   await seedCategories();
 
-    console.log("seed categories")
+  console.log('seed categories');
 
   await seedColors();
-    console.log("seed colors")
-
+  console.log('seed colors');
 
   await seedSizes();
-    console.log("seed size")
-
+  console.log('seed size');
 
   await seedBrands();
-   console.log("seed brands")
+  console.log('seed brands');
 
   const users = await getAll(
     `
@@ -33,7 +33,6 @@ export async function seedDatabase() {
   `
   );
 
-
   console.log(users);
 }
 
@@ -41,10 +40,12 @@ export async function seedDatabase() {
  * Crea administrador inicial.
  */
 async function seedAdmin() {
-  try{
+  try {
+    // ===========================
+    // ADMIN
+    // ===========================
 
-    console.log("entro a funcion seedAdmin")
-    const existingUser = await getOne(
+    const existingAdmin = await getOne(
       `
       SELECT id
       FROM users
@@ -52,30 +53,55 @@ async function seedAdmin() {
       `,
       ['admin']
     );
-    console.log("existing user: ", existingUser)
-  
-    if (existingUser) {
-      return;
+
+    if (!existingAdmin) {
+      const adminHash = hashPassword('admin123');
+
+      await execute(
+        `
+        INSERT INTO users (
+          username,
+          full_name,
+          password_hash,
+          role
+        )
+        VALUES (?, ?, ?, ?)
+        `,
+        ['admin', 'Administrador', adminHash, 'ADMIN']
+      );
     }
-  
-      console.log("2. Resultado del SELECT:", existingUser);
-  
-    const passwordHash =   hashPassword('admin123');
-  console.log("5. Hash generado: ", passwordHash);
-    await execute(
+
+    // ===========================
+    // STANDARD
+    // ===========================
+
+    const existingEmployee = await getOne(
       `
-      INSERT INTO users (
-        username,
-        full_name,
-        password_hash,
-        role
-      )
-      VALUES (?, ?, ?, ?)
+      SELECT id
+      FROM users
+      WHERE username = ?
       `,
-      ['admin', 'Administrador', passwordHash, 'ADMIN']
+      ['empleado']
     );
-  }catch(error){
-console.log("Error: ", error)
+
+    if (!existingEmployee) {
+      const employeeHash = hashPassword('empleado123');
+
+      await execute(
+        `
+        INSERT INTO users (
+          username,
+          full_name,
+          password_hash,
+          role
+        )
+        VALUES (?, ?, ?, ?)
+        `,
+        ['empleado', 'Empleado', employeeHash, 'STANDARD']
+      );
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
