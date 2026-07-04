@@ -2,6 +2,7 @@ import { getAll, getOne, execute } from '@/database/db';
 import { CatalogItem, VariantBarcodeResult } from '@/types/types';
 import { getCurrentUser } from '@/auth/auth';
 import { ProductVariantDetail } from '@/types/types';
+import { getCurrentDateTime } from '@/utils/date';
 /**
  * Obtiene todos los colores activos.
  */
@@ -140,6 +141,8 @@ export async function registerInventoryMovement(
   quantity: number,
   userId: number
 ): Promise<void> {
+  const createdAt = getCurrentDateTime();
+
   await execute(
     `
     INSERT INTO inventory_movements
@@ -148,11 +151,18 @@ export async function registerInventoryMovement(
       movement_type,
       quantity,
       notes,
-      user_id
+      user_id,
+      created_at
     )
-    VALUES (?, 'ENTRY', ?, ?, ?)
+    VALUES (?, 'ENTRY', ?, ?, ?, ?)
     `,
-    [variantId, quantity, 'Stock inicial', userId]
+    [
+      variantId,
+      quantity,
+      'Stock inicial',
+      userId,
+      createdAt,
+    ]
   );
 }
 

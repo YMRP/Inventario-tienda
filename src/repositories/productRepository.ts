@@ -1,6 +1,7 @@
 import { execute, getAll, getOne } from '@/database/db';
 import { CatalogItem, Product, ProductDetail } from '@/types/types';
 import { InventoryProduct } from '@/types/types';
+import { getCurrentDateTime } from '@/utils/date';
 
 /**
  * Obtiene todas las categorías activas.
@@ -188,6 +189,8 @@ export async function updateProduct(
   categoryId: number,
   salePrice: number
 ): Promise<void> {
+  const updatedAt = getCurrentDateTime();
+
   await execute(
     `
     UPDATE products
@@ -197,9 +200,17 @@ export async function updateProduct(
       brand_id = ?,
       category_id = ?,
       sale_price = ?,
-      updated_at = CURRENT_TIMESTAMP
+      updated_at = ?
     WHERE id = ?
     `,
-    [name, description, brandId, categoryId, salePrice, productId]
+    [
+      name,
+      description,
+      brandId,
+      categoryId,
+      salePrice,
+      updatedAt,
+      productId,
+    ]
   );
 }
