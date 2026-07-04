@@ -197,34 +197,13 @@ export async function getVariantByBarcode(barcode: string): Promise<VariantBarco
   return await getOne<VariantBarcodeResult>(
     `
     SELECT
-
-    v.id,
-
-    v.product_id,
-
-    v.barcode,
-
-    v.available_stock,
-
-    p.name AS product_name,
-
-    p.sale_price,
-
-    c.name AS color,
-
-    s.name AS size
-
+  v.id,
+  v.available_stock,
+  v.reserved_stock,
+  p.name AS product_name,
+  p.sale_price
 FROM product_variants v
-
-INNER JOIN products p
-ON p.id = v.product_id
-
-INNER JOIN colors c
-ON c.id = v.color_id
-
-INNER JOIN sizes s
-ON s.id = v.size_id
-
+JOIN products p ON p.id = v.product_id
 WHERE v.barcode = ?
     `,
     [barcode]

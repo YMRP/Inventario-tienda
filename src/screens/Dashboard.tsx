@@ -13,6 +13,7 @@ import {
   getLeastSellingProduct,
   getTopProducts,
 } from '@/repositories/statsRepository';
+import { expireReservations } from '@/repositories/reservationRepository';
 type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
 export default function Dashboard() {
@@ -38,7 +39,8 @@ export default function Dashboard() {
 
   async function loadStats() {
     const dashboard = await getDashboardStats();
-
+    await expireReservations();
+    await loadDashboard();
     const [top, least, topListData] = await Promise.all([
       getTopSellingProduct(),
       getLeastSellingProduct(),
@@ -53,6 +55,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadDashboard();
+  }, []);
+
+  useEffect(() => {
+    expireReservations();
   }, []);
 
   async function loadDashboard() {
@@ -248,15 +254,16 @@ export default function Dashboard() {
           <Text className="text-lg font-bold text-white">Registrar Venta</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="rounded-2xl bg-yellow-500 p-6">
-          <Text className="text-lg font-bold text-white">Apartados</Text>
+        <TouchableOpacity
+          className="rounded-xl bg-gray-800 p-4"
+          onPress={() => navigation.navigate('Reservations')}>
+          <Text className="font-bold text-white">Apartados</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-         className="rounded-2xl bg-green-600 p-6"
+          className="rounded-2xl bg-green-600 p-6"
           onPress={() => navigation.navigate('Sales')}>
-          <Text className="font-bold text-white text-lg"> Historial de ventas</Text>
-
+          <Text className="text-lg font-bold text-white"> Historial de ventas</Text>
         </TouchableOpacity>
       </View>
 

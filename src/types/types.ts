@@ -5,6 +5,7 @@ ROLES PERMITIDOS
 export type UserRole = 'ADMIN' | 'STANDARD';
 
 export type VariantBarcodeResult = {
+  reserved_stock: number;
   id: number;
   product_id: number;
   barcode: string;
@@ -82,6 +83,12 @@ export type RootStackParamList = {
   SaleDetail: {
     saleId: number;
   };
+
+  Reservations: undefined;
+
+  ReservationDetail: {
+    reservationId: number;
+  };
 };
 
 export type Product = {
@@ -141,4 +148,32 @@ export type DashboardStats = {
   variants: number;
   lowStock: number;
   outOfStock: number;
+};
+
+export type ReservationProps = {
+  id: number;
+  customer_name: string;
+  customer_phone: string | null;
+  reservation_total: number;
+  status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
+  expires_at: string | null;
+  created_at: string;
+};
+
+export type ReservationDetailItem = {
+  variant_id: number;
+
+  product_name: string;
+
+  color: string;
+
+  size: string;
+
+  barcode: string;
+
+  quantity: number;
+
+  unit_price: number;
+
+  subtotal: number;
 };

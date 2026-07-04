@@ -1,13 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
-import PrimaryButton from '@/components/PrimaryButton';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '@/screens/Login';
 import { RootStackParamList } from '@/types/types';
 import Dashboard from '@/screens/Dashboard';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+
 import NewProduct from '@/screens/NewProduct';
-import { StackScreen } from 'react-native-screens';
 import NewVariant from '@/screens/NewVariant';
 import InventoryScreen from '@/screens/InventoryScreen';
 import ProductDetailScreen from '@/screens/ProductDetailScreen';
@@ -15,7 +12,8 @@ import EditProductScreen from '@/screens/EditScreen';
 import ScanResultScreen from '@/screens/ScanResultScreen';
 import SalesScreen from '@/screens/SalesScreen';
 import SaleDetailScreen from '@/screens/SaleDetailScreen';
-
+import ReservationsScreen from '@/screens/ReservationScreen';
+import ReservationDetailScreen from '@/screens/ReservationDetailScreen';
 /**
  * Creamos el Stack Navigator.
  *
@@ -35,11 +33,8 @@ export default function AppNavigator() {
           headerShown: false,
         }}>
         <Stack.Screen name="Login" component={Login} />
-
         <Stack.Screen name="Dashboard" component={Dashboard} />
-
         <Stack.Screen name="NewProduct" component={NewProduct} />
-
         <Stack.Screen name="NewVariant" component={NewVariant} />
         <Stack.Screen name="inventory" component={InventoryScreen} />
         <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
@@ -47,8 +42,9 @@ export default function AppNavigator() {
         <Stack.Screen name="ScanResult" component={ScanResultScreen} />
         <Stack.Screen name="Scan" component={ScanResultScreen} />
         <Stack.Screen name="Sales" component={SalesScreen} />
-
         <Stack.Screen name="SaleDetail" component={SaleDetailScreen} />
+        <Stack.Screen name="Reservations" component={ReservationsScreen} />
+        <Stack.Screen name="ReservationDetail" component={ReservationDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
