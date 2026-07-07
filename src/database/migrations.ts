@@ -66,16 +66,51 @@ export const migrations = [
 
     name TEXT NOT NULL UNIQUE,
 
-    active INTEGER NOT NULL DEFAULT 1,
+    variant_template_id INTEGER,
+
+    active INTEGER NOT NULL
+      DEFAULT 1
+      CHECK(active IN (0,1)),
 
     created_at TEXT NOT NULL
       DEFAULT CURRENT_TIMESTAMP,
 
     updated_at TEXT NOT NULL
-      DEFAULT CURRENT_TIMESTAMP
+      DEFAULT CURRENT_TIMESTAMP,
 
-  );
+    FOREIGN KEY (variant_template_id)
+      REFERENCES variant_templates(id)
+
+);
+
+ 
   `,
+
+  /*
+|--------------------------------------------------------------------------
+| VARIANT TEMPLATES
+|--------------------------------------------------------------------------
+*/
+  `
+CREATE TABLE IF NOT EXISTS variant_templates (
+
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  name TEXT NOT NULL
+    UNIQUE,
+
+  active INTEGER NOT NULL
+    DEFAULT 1
+    CHECK(active IN (0,1)),
+
+  created_at TEXT NOT NULL
+    DEFAULT CURRENT_TIMESTAMP,
+
+  updated_at TEXT NOT NULL
+    DEFAULT CURRENT_TIMESTAMP
+
+);
+`,
 
   /*
   |--------------------------------------------------------------------------
@@ -133,17 +168,28 @@ export const migrations = [
 
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    name TEXT NOT NULL UNIQUE,
+    template_id INTEGER NOT NULL,
 
-    active INTEGER NOT NULL DEFAULT 1,
+    name TEXT NOT NULL,
+
+    active INTEGER NOT NULL
+      DEFAULT 1
+      CHECK(active IN (0,1)),
 
     created_at TEXT NOT NULL
       DEFAULT CURRENT_TIMESTAMP,
 
     updated_at TEXT NOT NULL
-      DEFAULT CURRENT_TIMESTAMP
+      DEFAULT CURRENT_TIMESTAMP,
 
-  );
+    FOREIGN KEY (template_id)
+      REFERENCES variant_templates(id),
+
+    UNIQUE(template_id, name)
+
+);
+
+ 
   `,
   /*
   |--------------------------------------------------------------------------

@@ -54,7 +54,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    loadDashboard();
+    loadStats()
   }, []);
 
   useEffect(() => {
@@ -280,7 +280,8 @@ export default function Dashboard() {
               <Text className="text-lg font-bold text-white">Productos</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
+            <TouchableOpacity className="rounded-2xl bg-gray-800 p-6" 
+            onPress={()=>{navigation.navigate('CatalogScreen')}}>
               <Text className="text-lg font-bold text-white">Catálogos</Text>
             </TouchableOpacity>
 

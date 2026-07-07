@@ -7,41 +7,33 @@ import ProductForm from '@/components/ProductForm';
 
 import { RootStackParamList } from '@/types/types';
 
-type NavigationProps =
-  NativeStackNavigationProp<
-    RootStackParamList,
-    'NewProduct'
-  >;
+type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'NewProduct'>;
 
 export default function NewProduct() {
   const navigation = useNavigation<NavigationProps>();
 
-  function handleSaved(productId: number) {
-    Alert.alert(
-      'Producto guardado',
-      'Ahora registre la primera variante.',
-      [
-        {
-          text: 'Continuar',
-          onPress: () =>
-            navigation.navigate('NewVariant', {
-              productId,
-            }),
-        },
-      ]
-    );
-  }
+function handleSaved(data: { productId: number; categoryId: number }) {
+  Alert.alert(
+    'Producto guardado',
+    'Ahora registre la primera variante.',
+    [
+      {
+        text: 'Continuar',
+        onPress: () =>
+          navigation.navigate('NewVariant', {
+            productId: data.productId,
+            categoryId: data.categoryId,
+          }),
+      },
+    ]
+  );
+}
 
   return (
     <View className="flex-1 bg-white p-6">
+      <Text className="mb-8 text-2xl font-bold">Nuevo Producto</Text>
 
-      <Text className="mb-8 text-2xl font-bold">
-        Nuevo Producto
-      </Text>
-
-      <ProductForm
-        onSaved={handleSaved} mode={'create'}      />
-
+      <ProductForm onSaved={handleSaved} mode={'create'} />
     </View>
   );
 }

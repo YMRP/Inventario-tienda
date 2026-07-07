@@ -214,3 +214,112 @@ export async function updateProduct(
     ]
   );
 }
+
+/**
+ * Crea una categoría.
+ */
+export async function createCategory(
+  name: string,
+  templateId: number
+): Promise<void> {
+  await execute(
+    `
+    INSERT INTO categories
+    (
+      name,
+      variant_template_id
+    )
+    VALUES (?, ?)
+    `,
+    [name, templateId]
+  );
+}
+
+/**
+ * Crea una marca.
+ */
+export async function createBrand(
+  name: string
+): Promise<void> {
+  await execute(
+    `
+    INSERT INTO brand_catalog
+    (
+      name
+    )
+    VALUES (?)
+    `,
+    [name]
+  );
+}
+
+/**
+ * Actualiza una categoría.
+ */
+export async function updateCategory(
+  id: number,
+  name: string,
+  templateId: number
+): Promise<void> {
+  await execute(
+    `
+    UPDATE categories
+    SET
+      name = ?,
+      variant_template_id = ?
+    WHERE id = ?
+    `,
+    [name, templateId, id]
+  );
+}
+
+/**
+ * Cambia el estado de una categoría.
+ */
+export async function setCategoryStatus(
+  id: number,
+  active: number
+): Promise<void> {
+  await execute(
+    `
+    UPDATE categories
+    SET active = ?
+    WHERE id = ?
+    `,
+    [active, id]
+  );
+}
+
+/**
+ * Actualiza una marca.
+ */
+export async function updateBrand(
+  id: number,
+  name: string
+): Promise<void> {
+  await execute(
+    `
+    UPDATE brand_catalog
+    SET name = ?
+    WHERE id = ?
+    `,
+    [name, id]
+  );
+}
+
+/**
+ * Activa o desactiva una marca.
+ */
+export async function setBrandStatus(
+  id: number,
+  active: number
+): Promise<void> {
+  await execute(
+    `
+    UPDATE brand_catalog
+    SET active = ?
+    WHERE id = ?
+    `,
+    [active, id]
+  );
+}

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { execute, getAll, getOne } from "@/database/db";
 
 import { UserRole, User, CreateUserProps } from "@/types/types";
+import { getCurrentDateTime } from "@/utils/date";
 
 
 //Obtenemos el usuario antes de cualquier cosa
@@ -78,11 +79,11 @@ export async function changePassword(
       UPDATE users
       SET
         password_hash = ?,
-        updated_at = CURRENT_TIMESTAMP
+        updated_at = ?
       WHERE id = ?
     `,
     [
-      passwordHash,
+      passwordHash,getCurrentDateTime(),
       userId
     ]
   );
@@ -97,18 +98,19 @@ export async function setUserStatus(
   active: number
 ): Promise<void> {
 
-  await execute(
-    `
-      UPDATE users
-      SET
-        active = ?,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `,
-    [
-      active,
-      userId
-    ]
-  );
+ await execute(
+  `
+  UPDATE users
+  SET
+    active = ?,
+    updated_at = ?
+  WHERE id = ?
+  `,
+  [
+    active,
+    getCurrentDateTime(),
+    userId
+  ]
+);
 }
 //PARA CUANDO VUELVA A VER ESTE CODIGO: PENDIENTE COMENZAR A PROBAR EL LOGIN 

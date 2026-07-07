@@ -13,7 +13,9 @@ import { CatalogItem, ProductDetail } from '@/types/types';
 type Props = {
   mode: 'create' | 'edit';
   product?: ProductDetail;
-  onSaved?: (productId: number) => void;
+
+  onSaved?: (data: { productId: number; categoryId: number }) => void;
+
   onUpdated?: () => void;
 };
 
@@ -54,63 +56,59 @@ export default function ProductForm({ mode, product, onSaved, onUpdated }: Props
     }
   }, [mode, product]);
 
-async function handleSave() {
-  if (name.trim() === '') {
-    Alert.alert('Ingrese el nombre');
-    return;
+  async function handleSave() {
+    if (name.trim() === '') {
+      Alert.alert('Ingrese el nombre');
+      return;
+    }
+
+    if (selectedBrand === 0) {
+      Alert.alert('Seleccione una marca');
+      return;
+    }
+
+    if (selectedCategory === 0) {
+      Alert.alert('Seleccione una categoría');
+      return;
+    }
+
+    if (salePrice.trim() === '') {
+      Alert.alert('Ingrese el precio');
+      return;
+    }
+
+    const price = Number(salePrice);
+
+    if (isNaN(price) || price < 0) {
+      Alert.alert('Precio inválido');
+      return;
+    }
+
+    if (mode === 'create') {
+      const productId = await createProduct(
+  name,
+  description,
+  selectedBrand,
+  selectedCategory,
+  price
+);
+
+onSaved?.({
+  productId,
+  categoryId: selectedCategory,
+});
+
+      return;
+    }
+
+    if (mode === 'edit' && product) {
+      await updateProduct(product.id, name, description, selectedBrand, selectedCategory, price);
+
+      onUpdated?.();
+
+      return;
+    }
   }
-
-  if (selectedBrand === 0) {
-    Alert.alert('Seleccione una marca');
-    return;
-  }
-
-  if (selectedCategory === 0) {
-    Alert.alert('Seleccione una categoría');
-    return;
-  }
-
-  if (salePrice.trim() === '') {
-    Alert.alert('Ingrese el precio');
-    return;
-  }
-
-  const price = Number(salePrice);
-
-  if (isNaN(price) || price < 0) {
-    Alert.alert('Precio inválido');
-    return;
-  }
-
-  if (mode === 'create') {
-    const productId = await createProduct(
-      name,
-      description,
-      selectedBrand,
-      selectedCategory,
-      price
-    );
-
-    onSaved?.(productId);
-
-    return;
-  }
-
-  if (mode === 'edit' && product) {
-    await updateProduct(
-      product.id,
-      name,
-      description,
-      selectedBrand,
-      selectedCategory,
-      price
-    );
-
-    onUpdated?.();
-
-    return;
-  }
-}
 
   return (
     <View>

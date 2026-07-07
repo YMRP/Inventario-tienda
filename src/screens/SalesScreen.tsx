@@ -10,6 +10,7 @@ import {
   getSalesTotalByDate,
   getTopProductsByDate,
 } from '@/repositories/SalesRepository';
+import { getCurrentDate } from '@/utils/date';
 
 type SalesNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Sales'>;
 
@@ -24,7 +25,7 @@ export default function SalesScreen() {
   });
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getCurrentDate();
     setSelectedDate(today);
     loadSales(today);
   }, []);
@@ -98,7 +99,7 @@ export default function SalesScreen() {
       <TouchableOpacity
         className="mt-3 rounded-lg bg-gray-300 p-3"
         onPress={() => {
-          const today = new Date().toISOString().split('T')[0];
+          const today = getCurrentDate();
           setSelectedDate(today);
           loadSales(today);
         }}>

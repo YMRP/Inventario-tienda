@@ -92,6 +92,7 @@ export default function ProductDetailScreen() {
               onPress={() =>
                 navigation.navigate('NewVariant', {
                   productId: product.id,
+                  categoryId: product.category_id,
                 })
               }
             />

@@ -6,34 +6,28 @@ import { execute, getOne, getAll } from './db';
  * Inserta datos iniciales.
  */
 export async function seedDatabase() {
- 
-
-  console.log('Entro al seed database');
+  console.log("Entro al seed database");
 
   await seedAdmin();
 
-  console.log('seed admin');
+  await seedVariantTemplates();
+
   await seedCategories();
 
-  console.log('seed categories');
-
   await seedColors();
-  console.log('seed colors');
 
   await seedSizes();
-  console.log('seed size');
 
   await seedBrands();
-  console.log('seed brands');
 
-  const users = await getAll(
-    `
-  SELECT *
-  FROM users
-  `
-  );
+  const users = await getAll(`
+    SELECT *
+    FROM users
+  `);
 
   console.log(users);
+
+
 }
 
 /**
@@ -109,16 +103,52 @@ async function seedAdmin() {
  * Categorías iniciales.
  */
 async function seedCategories() {
-  const categories = ['Playeras', 'Pantalones', 'Vestidos', 'Sudaderas', 'Accesorios'];
+  const categories = [
+    {
+      name: 'Playeras',
+      template: 'Ropa',
+    },
+    {
+      name: 'Pantalones',
+      template: 'Pantalón',
+    },
+    {
+      name: 'Vestidos',
+      template: 'Ropa',
+    },
+    {
+      name: 'Sudaderas',
+      template: 'Ropa',
+    },
+    {
+      name: 'Accesorios',
+      template: 'Unitalla',
+    },
+  ];
 
   for (const category of categories) {
+    const template = await getOne<{ id: number }>(
+      `
+      SELECT id
+      FROM variant_templates
+      WHERE name = ?
+      `,
+      [category.template]
+    );
+
+    if (!template) continue;
+
     await execute(
       `
       INSERT OR IGNORE
-      INTO categories(name)
-      VALUES(?)
+      INTO categories
+      (
+        name,
+        variant_template_id
+      )
+      VALUES (?, ?)
       `,
-      [category]
+      [category.name, template.id]
     );
   }
 }
@@ -145,17 +175,69 @@ async function seedColors() {
  * Tallas iniciales.
  */
 async function seedSizes() {
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unitalla'];
+  const templates = [
+    {
+      template: 'Ropa',
+      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    },
+    {
+      template: 'Calzado',
+      sizes: [
+        '22',
+        '23',
+        '24',
+        '25',
+        '26',
+        '27',
+        '28',
+        '29',
+        '30',
+      ],
+    },
+    {
+      template: 'Pantalón',
+      sizes: [
+        '28',
+        '30',
+        '32',
+        '34',
+        '36',
+        '38',
+        '40',
+      ],
+    },
+    {
+      template: 'Unitalla',
+      sizes: ['Unitalla'],
+    },
+  ];
 
-  for (const size of sizes) {
-    await execute(
+  for (const item of templates) {
+    const template = await getOne<{ id: number }>(
       `
-      INSERT OR IGNORE
-      INTO sizes(name)
-      VALUES(?)
+      SELECT id
+      FROM variant_templates
+      WHERE name = ?
       `,
-      [size]
+      [item.template]
     );
+
+    if (!template) continue;
+
+    for (const size of item.sizes) {
+      await execute(
+        `
+        INSERT OR IGNORE
+        INTO sizes
+        (
+          template_id,
+          name
+        )
+        VALUES (?, ?)
+        `,
+        [template.id, size]
+      );
+    }
   }
 }
 
@@ -173,6 +255,26 @@ async function seedBrands() {
       VALUES(?)
       `,
       [brand]
+    );
+  }
+}
+
+async function seedVariantTemplates() {
+  const templates = [
+    'Ropa',
+    'Calzado',
+    'Pantalón',
+    'Unitalla',
+  ];
+
+  for (const template of templates) {
+    await execute(
+      `
+      INSERT OR IGNORE
+      INTO variant_templates(name)
+      VALUES(?)
+      `,
+      [template]
     );
   }
 }

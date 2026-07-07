@@ -4,7 +4,15 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { CatalogItem, RootStackParamList } from '@/types/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
-import { createVariant, generateUniqueBarcode, getAllColors, getAllSizes, registerInventoryMovement } from '@/repositories/variantRepository';
+import {
+  createVariant,
+  generateUniqueBarcode,
+  getAllColors,
+  getSizesByCategory,
+  getSizesByTemplate,
+  getTemplateByCategory,
+  registerInventoryMovement,
+} from '@/repositories/variantRepository';
 import { Picker } from '@react-native-picker/picker';
 
 type NewVariantRouteProp = RouteProp<RootStackParamList, 'NewVariant'>;
@@ -30,8 +38,7 @@ export default function NewVariant() {
 
   const route = useRoute<NewVariantRouteProp>();
 
-  const { productId } = route.params;
-
+  const { productId, categoryId } = route.params;
   useEffect(() => {
     loadData();
   }, []);
@@ -94,16 +101,28 @@ export default function NewVariant() {
 
   async function loadData() {
     try {
+      console.log('======================');
+      console.log('productId:', productId);
+      console.log('categoryId:', categoryId);
+
       const colorsData = await getAllColors();
 
-      const sizesData = await getAllSizes();
+      const templateId = await getTemplateByCategory(categoryId);
 
+      console.log('templateId:', templateId);
+      console.log('======================');
+
+      if (!templateId) {
+        Alert.alert('La categoría no tiene una plantilla asignada.');
+        navigation.goBack();
+        return;
+      }
+
+      const sizesData = await getSizesByTemplate(templateId);
       const newBarcode = await generateUniqueBarcode();
 
       setColors(colorsData);
-
       setSizes(sizesData);
-
       setBarcode(newBarcode);
     } catch (error) {
       console.log(error);

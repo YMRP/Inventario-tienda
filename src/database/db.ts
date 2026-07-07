@@ -1,5 +1,6 @@
 import { getDatabase } from './connection';
 import { migrations } from './migrations';
+import { seedDatabase } from './seed';
 
 /**
  * Ejecuta todas las migraciones.
@@ -7,17 +8,24 @@ import { migrations } from './migrations';
  * Crea las tablas de la base de datos.
  */
 export async function runMigrations() {
-  console.log("Iniciando migraciones")
   const db = await getDatabase();
 
-  for (const migration of migrations) {
-    console.log("en proceso de ejecucion de migraciones")
-    await db.execAsync(migration);
+  try {
+    for (const migration of migrations) {
+      await db.execAsync(migration);
+    }
+
+    console.log("Migraciones terminadas");
+
+    await seedDatabase();
+
+    console.log("Seed terminado");
+
+  } catch (error) {
+    console.log("ERROR EN MIGRACIONES");
+    console.log(error);
   }
-
-  console.log('Migraciones ejecutadas');
 }
-
 /**
  * Ejecuta INSERT, UPDATE o DELETE.
  */

@@ -64,6 +64,7 @@ export type RootStackParamList = {
   inventory: { filter?: 'ALL' | 'LOW_STOCK' | 'OUT_OF_STOCK' } | undefined;
   NewVariant: {
     productId: number;
+    categoryId: number
   };
   Scan: undefined;
   ProductDetail: {
@@ -89,6 +90,7 @@ export type RootStackParamList = {
   ReservationDetail: {
     reservationId: number;
   };
+  CatalogScreen:undefined
 };
 
 export type Product = {
