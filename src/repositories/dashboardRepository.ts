@@ -1,6 +1,5 @@
 import { getOne } from '@/database/db';
 import { DashboardStats } from '@/types/types';
-
 /**
  * Obtiene todas las estadísticas del Dashboard.
  */

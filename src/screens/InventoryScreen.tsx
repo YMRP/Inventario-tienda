@@ -6,6 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import { CatalogItem } from '@/types/types';
 import { getAllCategories } from '@/repositories/productRepository';
 import ProductCard from '@/components/ProductCard';
+  import { getBarcodeLabels } from '@/repositories/barcodeRepository';
 
 import { getInventoryProducts } from '@/repositories/productRepository';
 
@@ -26,9 +27,22 @@ export default function InventoryScreen() {
   const [search, setSearch] = useState('');
   const [categories, setCategories] = useState<CatalogItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+
   useEffect(() => {
     loadProducts();
   }, [filter]);
+
+  useEffect(() => {
+  async function test() {
+    console.log("BAR CODE TEEEEEEEEEEST")
+    const data = await getBarcodeLabels();
+    console.log(data);
+
+    console.log("END BAR CODE TEEEEEEEEEEST")
+  }
+
+  test();
+}, []);
 
   async function loadProducts() {
     try {

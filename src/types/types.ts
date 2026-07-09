@@ -1,7 +1,6 @@
 /*
 ROLES PERMITIDOS
 */
-
 export type UserRole = 'ADMIN' | 'STANDARD';
 
 export type VariantBarcodeResult = {
@@ -179,4 +178,11 @@ export type ReservationDetailItem = {
   unit_price: number;
 
   subtotal: number;
+};
+
+export type BarcodeLabel = {
+  product_name: string;
+  color: string;
+  size: string;
+  barcode: string;
 };

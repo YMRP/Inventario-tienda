@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { logout, getCurrentUser } from '@/auth/auth';
-import { RootStackParamList } from '@/types/types';
-
+import { BarcodeLabel, RootStackParamList } from '@/types/types';
+import ViewShot from 'react-native-view-shot';
+import { generateBarcodePdf } from '@/services/barcodePDF.service';
+import BarcodeCapture from '@/components/BarcodeCapture';
+import { getBarcodeLabels } from '@/repositories/barcodeRepository';
 import { getDashboardStats } from '@/repositories/dashboardRepository';
 import {
   getTopSellingProduct,
@@ -14,11 +17,14 @@ import {
   getTopProducts,
 } from '@/repositories/statsRepository';
 import { expireReservations } from '@/repositories/reservationRepository';
+import { exportBarcodes } from '@/services/barcodeExport.service';
 type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
 export default function Dashboard() {
   const navigation = useNavigation<DashboardNavigationProp>();
+  const barcodeRef = useRef<React.ElementRef<typeof ViewShot>>(null);
 
+  const [barcodeLabels, setBarcodeLabels] = useState<BarcodeLabel[]>([]);
   const user = getCurrentUser();
 
   const isAdmin = user?.role === 'ADMIN';
@@ -36,11 +42,33 @@ export default function Dashboard() {
   const [topProduct, setTopProduct] = useState<any>(null);
   const [leastProduct, setLeastProduct] = useState<any>(null);
   const [topList, setTopList] = useState<any[]>([]);
+  const [barcodeReady, setBarcodeReady] = useState(false);
+  const handleExportBarcodes = async () => {
+    try {
+      const labels = await getBarcodeLabels();
+
+      if (labels.length === 0) {
+        console.log('No existen etiquetas');
+        return;
+      }
+
+      console.log('Etiquetas encontradas:', labels.length);
+
+      setBarcodeReady(false);
+      setBarcodeLabels(labels);
+    } catch (error) {
+      console.log('Error cargando etiquetas:', error);
+    }
+  };
 
   async function loadStats() {
     const dashboard = await getDashboardStats();
     await expireReservations();
     await loadDashboard();
+    console.log('-------------------------BARCODES');
+    await exportBarcodes();
+    console.log('-------------------------');
+
     const [top, least, topListData] = await Promise.all([
       getTopSellingProduct(),
       getLeastSellingProduct(),
@@ -52,6 +80,27 @@ export default function Dashboard() {
     setLeastProduct(least);
     setTopList(topListData);
   }
+
+  useEffect(() => {
+    if (!barcodeReady) return;
+
+    const exportPdf = async () => {
+      try {
+        if (!barcodeRef.current) return;
+
+        const base64 = await barcodeRef.current.capture();
+
+        await generateBarcodePdf(base64);
+
+        setBarcodeReady(false);
+        setBarcodeLabels([]);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    exportPdf();
+  }, [barcodeReady]);
 
   useEffect(() => {
     loadStats();
@@ -112,7 +161,7 @@ export default function Dashboard() {
     );
   }
   return (
-    <SafeAreaView className='flex-1'>
+    <SafeAreaView className="flex-1">
       <ScrollView
         className="flex-1 bg-white"
         contentContainerStyle={{
@@ -250,6 +299,14 @@ export default function Dashboard() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            className="mb-3 w-[48%] rounded-xl bg-white p-4 shadow"
+            onPress={handleExportBarcodes}>
+            <Text className="text-sm text-gray-500">Exportar códigos</Text>
+
+            <Text className="mt-1 text-2xl font-bold">PDF</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             className="rounded-2xl bg-green-600 p-6"
             onPress={() => navigation.navigate('Scan')}>
             <Text className="text-lg font-bold text-white">Registrar Venta</Text>
@@ -296,6 +353,15 @@ export default function Dashboard() {
               <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
                 <Text className="text-lg font-bold text-white">Respaldo de Base de Datos</Text>
               </TouchableOpacity>
+
+              {/* Aquí va BarcodeCapture */}
+              {barcodeLabels.length > 0 && (
+                <BarcodeCapture
+                  ref={barcodeRef}
+                  labels={barcodeLabels}
+                  onReady={() => setBarcodeReady(true)}
+                />
+              )}
             </View>
           </>
         )}
