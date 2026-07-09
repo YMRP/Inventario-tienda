@@ -14,10 +14,10 @@ import {
   registerInventoryMovement,
 } from '@/repositories/variantRepository';
 import { Picker } from '@react-native-picker/picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type NewVariantRouteProp = RouteProp<RootStackParamList, 'NewVariant'>;
 
-type RouteProps = RouteProp<RootStackParamList, 'NewVariant'>;
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'NewVariant'>;
 
@@ -132,6 +132,7 @@ export default function NewVariant() {
   }
 
   return (
+    <SafeAreaView className='flex-1'>
     <View className="flex-1 bg-white p-6">
       <Text className="mb-8 text-2xl font-bold">Nueva Variante</Text>
 
@@ -199,5 +200,6 @@ export default function NewVariant() {
         <Text className="text-center font-bold text-white">Guardar Variante</Text>
       </TouchableOpacity>
     </View>
+    </SafeAreaView>
   );
 }

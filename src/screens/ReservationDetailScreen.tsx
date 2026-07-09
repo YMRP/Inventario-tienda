@@ -9,6 +9,7 @@ import {
   getReservationById,
 } from '@/repositories/reservationRepository';
 import { ReservationDetailItem, ReservationProps } from '@/types/types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReservationDetailScreen() {
   const route = useRoute<any>();
@@ -83,52 +84,56 @@ export default function ReservationDetailScreen() {
   const total = items.reduce((sum, i) => sum + i.subtotal, 0);
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
-      <Text className="mb-4 text-2xl font-bold">Detalle del Apartado #{reservationId}</Text>
+    <SafeAreaView className="flex-1">
+      <View className="flex-1 bg-gray-100 p-4">
+        <Text className="mb-4 text-2xl font-bold">Detalle del Apartado #{reservationId}</Text>
 
-      {reservation && (
-        <View className="mb-4 rounded-xl bg-white p-4 shadow">
-          <Text>Cliente: {reservation.customer_name}</Text>
+        {reservation && (
+          <View className="mb-4 rounded-xl bg-white p-4 shadow">
+            <Text>Cliente: {reservation.customer_name}</Text>
 
-          <Text>Teléfono: {reservation.customer_phone ?? 'Sin teléfono'}</Text>
+            <Text>Teléfono: {reservation.customer_phone ?? 'Sin teléfono'}</Text>
 
-          <Text>Estado: {reservation.status}</Text>
+            <Text>Estado: {reservation.status}</Text>
 
-          <Text>Vence: {reservation.expires_at}</Text>
-        </View>
-      )}
-
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.variant_id.toString()}
-        renderItem={({ item }) => (
-          <View className="mb-3 rounded-xl bg-white p-4 shadow">
-            <Text className="font-bold">{item.product_name}</Text>
-
-            <Text className="text-gray-600">Cantidad: {item.quantity}</Text>
-
-            <Text className="text-gray-600">Precio: ${item.unit_price}</Text>
-
-            <Text className="font-bold">Subtotal: ${item.subtotal}</Text>
+            <Text>Vence: {reservation.expires_at}</Text>
           </View>
         )}
-      />
 
-      <View className="mt-4 rounded-xl bg-green-50 p-4">
-        <Text className="text-lg font-bold">Total: ${total.toFixed(2)}</Text>
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.variant_id.toString()}
+          renderItem={({ item }) => (
+            <View className="mb-3 rounded-xl bg-white p-4 shadow">
+              <Text className="font-bold">{item.product_name}</Text>
+
+              <Text className="text-gray-600">Cantidad: {item.quantity}</Text>
+
+              <Text className="text-gray-600">Precio: ${item.unit_price}</Text>
+
+              <Text className="font-bold">Subtotal: ${item.subtotal}</Text>
+            </View>
+          )}
+        />
+
+        <View className="mt-4 rounded-xl bg-green-50 p-4">
+          <Text className="text-lg font-bold">Total: ${total.toFixed(2)}</Text>
+        </View>
+
+        {reservation?.status === 'ACTIVE' && (
+          <>
+            <TouchableOpacity className="mt-4 rounded-xl bg-blue-600 p-4" onPress={handleConvert}>
+              <Text className="text-center font-bold text-white">Convertir a Venta</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="mb-52 mt-3 rounded-xl bg-red-600 p-4"
+              onPress={handleCancel}>
+              <Text className="text-center font-bold text-white">Cancelar apartado</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
-
-      {reservation?.status === 'ACTIVE' && (
-        <>
-          <TouchableOpacity className="mt-4 rounded-xl bg-blue-600 p-4" onPress={handleConvert}>
-            <Text className="text-center font-bold text-white">Convertir a Venta</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity className="mb-52 mt-3 rounded-xl bg-red-600 p-4" onPress={handleCancel}>
-            <Text className="text-center font-bold text-white">Cancelar apartado</Text>
-          </TouchableOpacity>
-        </>
-      )}
-    </View>
+    </SafeAreaView>
   );
 }

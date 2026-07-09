@@ -11,6 +11,7 @@ import {
   getTopProductsByDate,
 } from '@/repositories/SalesRepository';
 import { getCurrentDate } from '@/utils/date';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type SalesNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Sales'>;
 
@@ -48,7 +49,7 @@ export default function SalesScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
+    <SafeAreaView className="flex-1 bg-gray-100 p-4">
       <Text className="mb-4 text-2xl font-bold">Historial de ventas</Text>
 
       {/* CALENDARIO */}
@@ -129,6 +130,6 @@ export default function SalesScreen() {
           </TouchableOpacity>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }

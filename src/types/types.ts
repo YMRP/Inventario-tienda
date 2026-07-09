@@ -107,6 +107,7 @@ export type Product = {
 export interface CatalogItem {
   id: number;
   name: string;
+  active: number;
 }
 
 export type InventoryProduct = {

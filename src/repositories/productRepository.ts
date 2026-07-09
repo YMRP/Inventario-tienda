@@ -9,12 +9,14 @@ import { getCurrentDateTime } from '@/utils/date';
 export async function getAllCategories(): Promise<CatalogItem[]> {
   return await getAll(
     `
-    SELECT
-      id,
-      name
-    FROM categories
-    WHERE active = 1
-    ORDER BY name
+   SELECT
+    id,
+    name,
+    variant_template_id,
+    active
+FROM categories
+WHERE active = 1
+ORDER BY name
     `
   );
 }
@@ -26,11 +28,12 @@ export async function getAllBrands(): Promise<CatalogItem[]> {
   return await getAll(
     `
     SELECT
-      id,
-      name
-    FROM brand_catalog
-    WHERE active = 1
-    ORDER BY name
+    id,
+    name,
+    active
+FROM brand_catalog
+WHERE active = 1
+ORDER BY name
     `
   );
 }
@@ -73,8 +76,8 @@ export async function getInventoryProducts(
 WHERE p.active = 1
 `;
 
-if (filter === 'LOW_STOCK') {
-  whereClause += `
+  if (filter === 'LOW_STOCK') {
+    whereClause += `
   AND EXISTS (
     SELECT 1
     FROM product_variants pv
@@ -83,10 +86,10 @@ if (filter === 'LOW_STOCK') {
       AND pv.available_stock > 0
   )
   `;
-}
+  }
 
-if (filter === 'OUT_OF_STOCK') {
-  whereClause += `
+  if (filter === 'OUT_OF_STOCK') {
+    whereClause += `
   AND EXISTS (
     SELECT 1
     FROM product_variants pv
@@ -94,9 +97,7 @@ if (filter === 'OUT_OF_STOCK') {
       AND pv.available_stock = 0
   )
   `;
-}
-
-
+  }
 
   return await getAll(
     `
@@ -147,7 +148,9 @@ if (filter === 'OUT_OF_STOCK') {
 /**
  * Obtiene la información principal de un producto.
  */
-export async function getProductDetail(productId: number): Promise<ProductDetail | null> {
+export async function getProductDetail(
+  productId: number
+): Promise<ProductDetail | null> {
   return await getOne(
     `
     SELECT
@@ -157,6 +160,10 @@ export async function getProductDetail(productId: number): Promise<ProductDetail
       p.name,
 
       p.description,
+
+      p.brand_id,
+
+      p.category_id,
 
       b.name AS brand,
 
@@ -203,25 +210,14 @@ export async function updateProduct(
       updated_at = ?
     WHERE id = ?
     `,
-    [
-      name,
-      description,
-      brandId,
-      categoryId,
-      salePrice,
-      updatedAt,
-      productId,
-    ]
+    [name, description, brandId, categoryId, salePrice, updatedAt, productId]
   );
 }
 
 /**
  * Crea una categoría.
  */
-export async function createCategory(
-  name: string,
-  templateId: number
-): Promise<void> {
+export async function createCategory(name: string, templateId: number): Promise<void> {
   await execute(
     `
     INSERT INTO categories
@@ -238,9 +234,7 @@ export async function createCategory(
 /**
  * Crea una marca.
  */
-export async function createBrand(
-  name: string
-): Promise<void> {
+export async function createBrand(name: string): Promise<void> {
   await execute(
     `
     INSERT INTO brand_catalog
@@ -256,30 +250,21 @@ export async function createBrand(
 /**
  * Actualiza una categoría.
  */
-export async function updateCategory(
-  id: number,
-  name: string,
-  templateId: number
-): Promise<void> {
+export async function updateCategory(id: number, name: string): Promise<void> {
   await execute(
     `
     UPDATE categories
     SET
-      name = ?,
-      variant_template_id = ?
+      name = ?
     WHERE id = ?
     `,
-    [name, templateId, id]
+    [name, id]
   );
 }
-
 /**
  * Cambia el estado de una categoría.
  */
-export async function setCategoryStatus(
-  id: number,
-  active: number
-): Promise<void> {
+export async function setCategoryStatus(id: number, active: number): Promise<void> {
   await execute(
     `
     UPDATE categories
@@ -293,10 +278,7 @@ export async function setCategoryStatus(
 /**
  * Actualiza una marca.
  */
-export async function updateBrand(
-  id: number,
-  name: string
-): Promise<void> {
+export async function updateBrand(id: number, name: string): Promise<void> {
   await execute(
     `
     UPDATE brand_catalog
@@ -310,10 +292,7 @@ export async function updateBrand(
 /**
  * Activa o desactiva una marca.
  */
-export async function setBrandStatus(
-  id: number,
-  active: number
-): Promise<void> {
+export async function setBrandStatus(id: number, active: number): Promise<void> {
   await execute(
     `
     UPDATE brand_catalog
@@ -322,4 +301,30 @@ export async function setBrandStatus(
     `,
     [active, id]
   );
+}
+
+export async function categoryHasProducts(categoryId: number): Promise<boolean> {
+  const result = await getOne<{ total: number }>(
+    `
+    SELECT COUNT(*) AS total
+    FROM products
+    WHERE category_id = ?
+    `,
+    [categoryId]
+  );
+
+  return (result?.total ?? 0) > 0;
+}
+
+export async function brandHasProducts(brandId: number): Promise<boolean> {
+  const result = await getOne<{ total: number }>(
+    `
+    SELECT COUNT(*) AS total
+    FROM products
+    WHERE brand_id = ?
+    `,
+    [brandId]
+  );
+
+  return (result?.total ?? 0) > 0;
 }

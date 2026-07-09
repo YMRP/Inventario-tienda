@@ -54,7 +54,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    loadStats()
+    loadStats();
   }, []);
 
   useEffect(() => {
@@ -112,195 +112,200 @@ export default function Dashboard() {
     );
   }
   return (
-    <ScrollView
-      className="flex-1 bg-white"
-      contentContainerStyle={{
-        padding: 24,
-        paddingBottom: 40,
-      }}>
-      {/* HEADER */}
+    <SafeAreaView className='flex-1'>
+      <ScrollView
+        className="flex-1 bg-white"
+        contentContainerStyle={{
+          padding: 24,
+          paddingBottom: 40,
+        }}>
+        {/* HEADER */}
 
-      <Text className="text-3xl font-bold text-blue-700">Inventario Local</Text>
+        <Text className="text-3xl font-bold text-blue-700">Inventario Local</Text>
 
-      <Text className="mt-3 text-lg text-gray-700">Bienvenido</Text>
+        <Text className="mt-3 text-lg text-gray-700">Bienvenido</Text>
 
-      <Text className="text-2xl font-bold">{user?.full_name}</Text>
+        <Text className="text-2xl font-bold">{user?.full_name}</Text>
 
-      <Text className="mb-6 text-base text-gray-500">Rol: {user?.role}</Text>
+        <Text className="mb-6 text-base text-gray-500">Rol: {user?.role}</Text>
 
-      {/* DASHBOARD ADMIN */}
+        {/* DASHBOARD ADMIN */}
 
-      {isAdmin && (
-        <>
-          <View className="mb-6">
-            <Text className="mb-3 text-lg font-bold">Estado del negocio</Text>
+        {isAdmin && (
+          <>
+            <View className="mb-6">
+              <Text className="mb-3 text-lg font-bold">Estado del negocio</Text>
 
-            <View className="flex-row flex-wrap justify-between">
-              {/* PRODUCTOS */}
-              <TouchableOpacity
-                className="mb-3 w-[48%] rounded-xl bg-white p-4 shadow"
-                onPress={() =>
-                  navigation.navigate('inventory', {
-                    filter: 'ALL',
-                  })
-                }>
-                <Text className="text-sm text-gray-500">Productos registrados</Text>
+              <View className="flex-row flex-wrap justify-between">
+                {/* PRODUCTOS */}
+                <TouchableOpacity
+                  className="mb-3 w-[48%] rounded-xl bg-white p-4 shadow"
+                  onPress={() =>
+                    navigation.navigate('inventory', {
+                      filter: 'ALL',
+                    })
+                  }>
+                  <Text className="text-sm text-gray-500">Productos registrados</Text>
 
-                <Text className="mt-1 text-2xl font-bold">{stats.products}</Text>
-              </TouchableOpacity>
+                  <Text className="mt-1 text-2xl font-bold">{stats.products}</Text>
+                </TouchableOpacity>
 
-              {/* VARIANTES */}
-              <TouchableOpacity
-                className="mb-3 w-[48%] rounded-xl bg-white p-4 shadow"
-                onPress={() =>
-                  navigation.navigate('inventory', {
-                    filter: 'ALL',
-                  })
-                }>
-                <Text className="text-sm text-gray-500">Variantes registradas</Text>
+                {/* VARIANTES */}
+                <TouchableOpacity
+                  className="mb-3 w-[48%] rounded-xl bg-white p-4 shadow"
+                  onPress={() =>
+                    navigation.navigate('inventory', {
+                      filter: 'ALL',
+                    })
+                  }>
+                  <Text className="text-sm text-gray-500">Variantes registradas</Text>
 
-                <Text className="mt-1 text-2xl font-bold">{stats.variants}</Text>
-              </TouchableOpacity>
+                  <Text className="mt-1 text-2xl font-bold">{stats.variants}</Text>
+                </TouchableOpacity>
 
-              {/* STOCK BAJO */}
-              <TouchableOpacity
-                className="mb-3 w-[48%] rounded-xl bg-yellow-50 p-4 shadow"
-                onPress={() =>
-                  navigation.navigate('inventory', {
-                    filter: 'LOW_STOCK',
-                  })
-                }>
-                <Text className="text-sm text-yellow-700">Variantes con stock bajo</Text>
+                {/* STOCK BAJO */}
+                <TouchableOpacity
+                  className="mb-3 w-[48%] rounded-xl bg-yellow-50 p-4 shadow"
+                  onPress={() =>
+                    navigation.navigate('inventory', {
+                      filter: 'LOW_STOCK',
+                    })
+                  }>
+                  <Text className="text-sm text-yellow-700">Variantes con stock bajo</Text>
 
-                <Text className="mt-1 text-2xl font-bold text-yellow-700">{stats.lowStock}</Text>
-              </TouchableOpacity>
+                  <Text className="mt-1 text-2xl font-bold text-yellow-700">{stats.lowStock}</Text>
+                </TouchableOpacity>
 
-              {/* AGOTADOS */}
-              <TouchableOpacity
-                className="mb-3 w-[48%] rounded-xl bg-red-50 p-4 shadow"
-                onPress={() =>
-                  navigation.navigate('inventory', {
-                    filter: 'OUT_OF_STOCK',
-                  })
-                }>
-                <Text className="text-sm text-red-700">Variantes agotadas</Text>
+                {/* AGOTADOS */}
+                <TouchableOpacity
+                  className="mb-3 w-[48%] rounded-xl bg-red-50 p-4 shadow"
+                  onPress={() =>
+                    navigation.navigate('inventory', {
+                      filter: 'OUT_OF_STOCK',
+                    })
+                  }>
+                  <Text className="text-sm text-red-700">Variantes agotadas</Text>
 
-                <Text className="mt-1 text-2xl font-bold text-red-700">{stats.outOfStock}</Text>
-              </TouchableOpacity>
+                  <Text className="mt-1 text-2xl font-bold text-red-700">{stats.outOfStock}</Text>
+                </TouchableOpacity>
 
-              {/* VENTAS DEL DÍA (SIN ACCIÓN AÚN) */}
-              <View className="w-full rounded-xl bg-green-50 p-4 shadow">
-                <Text className="text-sm text-green-700">Total vendido hoy</Text>
+                {/* VENTAS DEL DÍA (SIN ACCIÓN AÚN) */}
+                <View className="w-full rounded-xl bg-green-50 p-4 shadow">
+                  <Text className="text-sm text-green-700">Total vendido hoy</Text>
 
-                <Text className="mt-1 text-3xl font-bold text-green-700">
-                  ${stats.todaySales.toFixed(2)}
-                </Text>
+                  <Text className="mt-1 text-3xl font-bold text-green-700">
+                    ${stats.todaySales.toFixed(2)}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-          <View className="mt-6">
-            <Text className="mb-3 text-lg font-bold">Estadísticas de ventas</Text>
+            <View className="mt-6">
+              <Text className="mb-3 text-lg font-bold">Estadísticas de ventas</Text>
 
-            {/* TOP PRODUCT */}
-            <View className="mb-3 rounded-xl bg-blue-50 p-4">
-              <Text className="text-sm text-blue-700">Producto más vendido</Text>
+              {/* TOP PRODUCT */}
+              <View className="mb-3 rounded-xl bg-blue-50 p-4">
+                <Text className="text-sm text-blue-700">Producto más vendido</Text>
 
-              <Text className="mt-1 text-lg font-bold text-blue-900">
-                {topProduct?.name ?? 'Sin datos'}
-              </Text>
+                <Text className="mt-1 text-lg font-bold text-blue-900">
+                  {topProduct?.name ?? 'Sin datos'}
+                </Text>
 
-              <Text className="text-blue-700">{topProduct?.total_sold ?? 0} unidades</Text>
+                <Text className="text-blue-700">{topProduct?.total_sold ?? 0} unidades</Text>
+              </View>
+
+              {/* LEAST PRODUCT */}
+              <View className="mb-3 rounded-xl bg-gray-100 p-4">
+                <Text className="text-sm text-gray-600">Producto menos vendido</Text>
+
+                <Text className="mt-1 text-lg font-bold">{leastProduct?.name ?? 'Sin datos'}</Text>
+
+                <Text className="text-gray-600">{leastProduct?.total_sold ?? 0} unidades</Text>
+              </View>
+
+              {/* TOP LIST */}
+              <View className="rounded-xl bg-white p-4 shadow">
+                <Text className="mb-2 font-bold">Top productos</Text>
+
+                {topList.map((item) => (
+                  <View key={item.id} className="flex-row justify-between py-1">
+                    <Text>{item.name}</Text>
+
+                    <Text className="font-bold">{item.total_sold} uds</Text>
+                  </View>
+                ))}
+              </View>
             </View>
+          </>
+        )}
 
-            {/* LEAST PRODUCT */}
-            <View className="mb-3 rounded-xl bg-gray-100 p-4">
-              <Text className="text-sm text-gray-600">Producto menos vendido</Text>
+        {/* ACCIONES */}
 
-              <Text className="mt-1 text-lg font-bold">{leastProduct?.name ?? 'Sin datos'}</Text>
+        <Text className="mb-4 text-2xl font-bold">Acciones</Text>
 
-              <Text className="text-gray-600">{leastProduct?.total_sold ?? 0} unidades</Text>
+        <View className="gap-4">
+          <TouchableOpacity
+            className="rounded-2xl bg-blue-500 p-6"
+            onPress={() => navigation.navigate('inventory')}>
+            <Text className="text-lg font-bold text-white">Consultar Inventario</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="rounded-2xl bg-green-600 p-6"
+            onPress={() => navigation.navigate('Scan')}>
+            <Text className="text-lg font-bold text-white">Registrar Venta</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="rounded-xl bg-gray-800 p-4"
+            onPress={() => navigation.navigate('Reservations')}>
+            <Text className="font-bold text-white">Apartados</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="rounded-2xl bg-green-600 p-6"
+            onPress={() => navigation.navigate('Sales')}>
+            <Text className="text-lg font-bold text-white"> Historial de ventas</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ADMIN */}
+
+        {isAdmin && (
+          <>
+            <Text className="mb-4 mt-10 text-2xl font-bold">Administración</Text>
+
+            <View className="gap-4">
+              <TouchableOpacity
+                className="rounded-2xl bg-gray-800 p-6"
+                onPress={() => navigation.navigate('NewProduct')}>
+                <Text className="text-lg font-bold text-white">Productos</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="rounded-2xl bg-gray-800 p-6"
+                onPress={() => {
+                  navigation.navigate('CatalogScreen');
+                }}>
+                <Text className="text-lg font-bold text-white">Catálogos</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
+                <Text className="text-lg font-bold text-white">Reportes</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
+                <Text className="text-lg font-bold text-white">Respaldo de Base de Datos</Text>
+              </TouchableOpacity>
             </View>
+          </>
+        )}
 
-            {/* TOP LIST */}
-            <View className="rounded-xl bg-white p-4 shadow">
-              <Text className="mb-2 font-bold">Top productos</Text>
+        {/* LOGOUT */}
 
-              {topList.map((item) => (
-                <View key={item.id} className="flex-row justify-between py-1">
-                  <Text>{item.name}</Text>
-
-                  <Text className="font-bold">{item.total_sold} uds</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </>
-      )}
-
-      {/* ACCIONES */}
-
-      <Text className="mb-4 text-2xl font-bold">Acciones</Text>
-
-      <View className="gap-4">
-        <TouchableOpacity
-          className="rounded-2xl bg-blue-500 p-6"
-          onPress={() => navigation.navigate('inventory')}>
-          <Text className="text-lg font-bold text-white">Consultar Inventario</Text>
+        <TouchableOpacity className="mt-10 rounded-2xl bg-red-600 p-6" onPress={handleLogout}>
+          <Text className="text-center text-lg font-bold text-white">Cerrar Sesión</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          className="rounded-2xl bg-green-600 p-6"
-          onPress={() => navigation.navigate('Scan')}>
-          <Text className="text-lg font-bold text-white">Registrar Venta</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="rounded-xl bg-gray-800 p-4"
-          onPress={() => navigation.navigate('Reservations')}>
-          <Text className="font-bold text-white">Apartados</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="rounded-2xl bg-green-600 p-6"
-          onPress={() => navigation.navigate('Sales')}>
-          <Text className="text-lg font-bold text-white"> Historial de ventas</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* ADMIN */}
-
-      {isAdmin && (
-        <>
-          <Text className="mb-4 mt-10 text-2xl font-bold">Administración</Text>
-
-          <View className="gap-4">
-            <TouchableOpacity
-              className="rounded-2xl bg-gray-800 p-6"
-              onPress={() => navigation.navigate('NewProduct')}>
-              <Text className="text-lg font-bold text-white">Productos</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="rounded-2xl bg-gray-800 p-6" 
-            onPress={()=>{navigation.navigate('CatalogScreen')}}>
-              <Text className="text-lg font-bold text-white">Catálogos</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
-              <Text className="text-lg font-bold text-white">Reportes</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
-              <Text className="text-lg font-bold text-white">Respaldo de Base de Datos</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-
-      {/* LOGOUT */}
-
-      <TouchableOpacity className="mt-10 rounded-2xl bg-red-600 p-6" onPress={handleLogout}>
-        <Text className="text-center text-lg font-bold text-white">Cerrar Sesión</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

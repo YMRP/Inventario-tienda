@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, ProductDetail } from '@/types/types';
 import { getProductDetail } from '@/repositories/productRepository';
 import ProductForm from '@/components/ProductForm';
+import { SafeAreaView } from 'react-native-safe-area-context';
 type RouteProps = RouteProp<RootStackParamList, 'EditProduct'>;
 type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'EditProduct'>;
 
@@ -55,10 +56,12 @@ export default function EditProductScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white p-6">
-      <Text className="mb-8 text-2xl font-bold">Editar Producto</Text>
+    <SafeAreaView className="flex-1">
+      <View className="flex-1 bg-white p-6">
+        <Text className="mb-8 text-2xl font-bold">Editar Producto</Text>
 
-      {product && <ProductForm mode="edit" product={product} onUpdated={handleUpdated} />}
-    </View>
+        {product && <ProductForm mode="edit" product={product} onUpdated={handleUpdated} />}
+      </View>
+    </SafeAreaView>
   );
 }

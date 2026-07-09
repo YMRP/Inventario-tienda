@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import "./global.css"
-import { Text, View } from "react-native";
-import { initDatabase } from "@/database/initDatabase";
-import Login from "@/screens/Login";
+
 import AppNavigator from "@/navigation/AppNavigator";
 import { runMigrations } from "@/database/db";
 import { seedDatabase } from "@/database/seed";

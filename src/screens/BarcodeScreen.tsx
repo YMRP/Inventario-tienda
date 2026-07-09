@@ -9,6 +9,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/types/types';
 
 import { getVariantByBarcode } from '@/repositories/variantRepository';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'inventory'>;
 
@@ -67,10 +68,10 @@ export default function BarcodeScannerScreen() {
   }
 
   return (
-    <View className="flex-1">
+    <SafeAreaView className="flex-1">
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={{ flex: 1 }}
+         className='flex-1'
       />
 
       {scanned && (
@@ -78,6 +79,6 @@ export default function BarcodeScannerScreen() {
           <Button title="Escanear otra vez" onPress={() => setScanned(false)} />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

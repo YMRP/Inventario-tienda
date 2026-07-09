@@ -16,6 +16,7 @@ import { getVariantsByProduct } from '@/repositories/variantRepository';
 
 import VariantCard from '@/components/VariantCard';
 import PrimaryButton from '@/components/PrimaryButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type RouteProps = RouteProp<RootStackParamList, 'ProductDetail'>;
 
@@ -53,6 +54,7 @@ export default function ProductDetailScreen() {
   }
 
   return (
+    <SafeAreaView className='flex-1'>
     <View className="flex-1 bg-gray-100">
       {/* CABECERA */}
       <View className="bg-white p-5 shadow-sm">
@@ -116,5 +118,6 @@ export default function ProductDetailScreen() {
         )}
       />
     </View>
+    </SafeAreaView>
   );
 }

@@ -10,6 +10,7 @@ import { CartItem, ReservationProps } from '@/types/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/types/types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ScanResultScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -234,6 +235,7 @@ export default function ScanResultScreen() {
   }
 
   return (
+    <SafeAreaView className='flex-1'>
     <View className="flex-1">
       {/* Selector */}
 
@@ -356,5 +358,6 @@ export default function ScanResultScreen() {
         </View>
       </View>
     </View>
+    </SafeAreaView>
   );
 }

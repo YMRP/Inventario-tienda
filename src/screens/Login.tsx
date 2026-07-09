@@ -29,40 +29,43 @@ function Login() {
       }
       console.log('Se paso el if');
 
-      console.log("RESULT FINAL:", result);
+      console.log('RESULT FINAL:', result);
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <View className="flex-1 justify-center bg-white px-8">
-      <Text className="mb-10 text-center text-3xl font-bold text-blue-700">
-        Control de Inventario
-      </Text>
+    <View className="flex-1 justify-center  px-8 bg-blue-400 items-center">
 
-      <Text className="mb-2 text-base font-semibold">Usuario</Text>
+      <View className='bg-white rounded-2xl shadow-xl p-10 w-1/2'>
+        <Text className="mb-10 text-center text-3xl font-bold text-blue-700">
+          Gestión y control de inventario
+        </Text>
 
-      <TextInput
-        className="mb-5 rounded-lg border border-gray-300 p-3"
-        placeholder="Usuario"
-        value={username}
-        onChangeText={setUsername}
-      />
+        <Text className="mb-2 text-base font-semibold">Usuario</Text>
 
-      <Text className="mb-2 text-base font-semibold">Contraseña</Text>
+        <TextInput
+          className="mb-5 rounded-lg border border-gray-300 p-3"
+          placeholder="Ingresa tu nombre de usuario"
+          value={username}
+          onChangeText={setUsername}
+        />
 
-      <TextInput
-        className="mb-8 rounded-lg border border-gray-300 p-3"
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <Text className="mb-2 text-base font-semibold">Contraseña</Text>
 
-      <TouchableOpacity className="rounded-lg bg-blue-600 p-4" onPress={handeLogin}>
-        <Text className="text-center font-bold text-white">Iniciar sesión</Text>
-      </TouchableOpacity>
+        <TextInput
+          className="mb-8 rounded-lg border border-gray-300 p-3"
+          placeholder="Ingresa tu contraseña"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        <TouchableOpacity className="rounded-lg bg-blue-600 p-4" onPress={handeLogin}>
+          <Text className="text-center font-bold text-white">Iniciar sesión</Text>
+        </TouchableOpacity>
+      </View>
 
       <Text className="mt-6 text-center text-red-600">{message}</Text>
     </View>

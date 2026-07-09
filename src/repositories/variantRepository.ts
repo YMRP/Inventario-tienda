@@ -22,9 +22,7 @@ export async function getAllColors(): Promise<CatalogItem[]> {
 /**
  * Obtiene todas las tallas activas.
  */
-export async function getSizesByCategory(
-  categoryId: number
-): Promise<CatalogItem[]> {
+export async function getSizesByCategory(categoryId: number): Promise<CatalogItem[]> {
   return await getAll<CatalogItem>(
     `
     SELECT
@@ -166,13 +164,7 @@ export async function registerInventoryMovement(
     )
     VALUES (?, 'ENTRY', ?, ?, ?, ?)
     `,
-    [
-      variantId,
-      quantity,
-      'Stock inicial',
-      userId,
-      createdAt,
-    ]
+    [variantId, quantity, 'Stock inicial', userId, createdAt]
   );
 }
 
@@ -233,9 +225,7 @@ WHERE v.barcode = ?
 /**
  * Obtiene la plantilla de variantes asociada a una categoría.
  */
-export async function getTemplateByCategory(
-  categoryId: number
-): Promise<number | null> {
+export async function getTemplateByCategory(categoryId: number): Promise<number | null> {
   const result = await getOne<{ variant_template_id: number }>(
     `
     SELECT variant_template_id
@@ -251,19 +241,17 @@ export async function getTemplateByCategory(
 /**
  * Obtiene las tallas de una plantilla.
  */
-export async function getSizesByTemplate(
-  templateId: number
-): Promise<CatalogItem[]> {
+export async function getSizesByTemplate(templateId: number): Promise<CatalogItem[]> {
   return await getAll(
     `
     SELECT
-      id,
-      name
-    FROM sizes
-    WHERE
-      template_id = ?
-      AND active = 1
-    ORDER BY id
+    id,
+    name,
+    active
+FROM sizes
+WHERE
+    template_id = ?
+ORDER BY id
     `,
     [templateId]
   );
@@ -276,11 +264,11 @@ export async function getVariantTemplates(): Promise<CatalogItem[]> {
   return await getAll(
     `
     SELECT
-      id,
-      name
-    FROM variant_templates
-    WHERE active = 1
-    ORDER BY name
+    id,
+    name,
+    active
+FROM variant_templates
+ORDER BY name
     `
   );
 }
@@ -289,19 +277,18 @@ export async function getVariantTemplates(): Promise<CatalogItem[]> {
  * Obtiene las tallas de una plantilla.
  */
 
-
 /**
  * Obtiene todos los colores.
  */
 export async function getCatalogColors(): Promise<CatalogItem[]> {
   return await getAll(
     `
-    SELECT
-      id,
-      name
-    FROM colors
-    WHERE active = 1
-    ORDER BY name
+   SELECT
+    id,
+    name,
+    active
+FROM colors WHERE active = 1
+ORDER BY name
     `
   );
 }
@@ -309,9 +296,7 @@ export async function getCatalogColors(): Promise<CatalogItem[]> {
 /**
  * Crea un color.
  */
-export async function createColor(
-  name: string
-): Promise<void> {
+export async function createColor(name: string): Promise<void> {
   await execute(
     `
     INSERT INTO colors
@@ -327,10 +312,7 @@ export async function createColor(
 /**
  * Crea una talla.
  */
-export async function createSize(
-  templateId: number,
-  name: string
-): Promise<void> {
+export async function createSize(templateId: number, name: string): Promise<void> {
   await execute(
     `
     INSERT INTO sizes
@@ -346,9 +328,7 @@ export async function createSize(
 /**
  * Crea una plantilla de variantes.
  */
-export async function createVariantTemplate(
-  name: string
-): Promise<void> {
+export async function createVariantTemplate(name: string): Promise<void> {
   await execute(
     `
     INSERT INTO variant_templates
@@ -361,39 +341,29 @@ export async function createVariantTemplate(
   );
 }
 
-export async function updateColor(
-  id:number,
-  name:string
-){
+export async function updateColor(id: number, name: string) {
   await execute(
     `
     UPDATE colors
     SET name=?
     WHERE id=?
     `,
-    [name,id]
+    [name, id]
   );
 }
 
-export async function setColorStatus(
-  id:number,
-  active:number
-){
+export async function setColorStatus(id: number, active: number) {
   await execute(
     `
     UPDATE colors
     SET active=?
     WHERE id=?
     `,
-    [active,id]
+    [active, id]
   );
 }
 
-export async function updateSize(
-  id:number,
-  templateId:number,
-  name:string
-){
+export async function updateSize(id: number, templateId: number, name: string) {
   await execute(
     `
     UPDATE sizes
@@ -402,48 +372,87 @@ export async function updateSize(
       name=?
     WHERE id=?
     `,
-    [templateId,name,id]
+    [templateId, name, id]
   );
 }
 
-export async function setSizeStatus(
-  id:number,
-  active:number
-){
+export async function setSizeStatus(id: number, active: number) {
   await execute(
     `
     UPDATE sizes
     SET active=?
     WHERE id=?
     `,
-    [active,id]
+    [active, id]
   );
 }
 
-export async function updateVariantTemplate(
-  id:number,
-  name:string
-){
+export async function updateVariantTemplate(id: number, name: string) {
   await execute(
     `
     UPDATE variant_templates
     SET name=?
     WHERE id=?
     `,
-    [name,id]
+    [name, id]
   );
 }
 
-export async function setVariantTemplateStatus(
-  id:number,
-  active:number
-){
+export async function setVariantTemplateStatus(id: number, active: number) {
   await execute(
     `
     UPDATE variant_templates
     SET active=?
     WHERE id=?
     `,
-    [active,id]
+    [active, id]
   );
+}
+
+export async function colorHasVariants(
+  colorId: number
+): Promise<boolean> {
+
+  const result = await getOne<{ total: number }>(
+    `
+    SELECT COUNT(*) AS total
+    FROM product_variants
+    WHERE color_id = ?
+    `,
+    [colorId]
+  );
+
+  return (result?.total ?? 0) > 0;
+}
+
+export async function sizeHasVariants(
+  sizeId: number
+): Promise<boolean> {
+
+  const result = await getOne<{ total: number }>(
+    `
+    SELECT COUNT(*) AS total
+    FROM product_variants
+    WHERE size_id = ?
+    `,
+    [sizeId]
+  );
+
+  return (result?.total ?? 0) > 0;
+}
+
+export async function templateHasCategories(
+  templateId: number
+): Promise<boolean> {
+
+  const result = await getOne<{ total: number }>(
+    `
+    SELECT COUNT(*) AS total
+    FROM categories
+    WHERE variant_template_id = ?
+    `,
+    [templateId]
+  );
+
+  return (result?.total ?? 0) > 0;
 }
