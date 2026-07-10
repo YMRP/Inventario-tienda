@@ -10,8 +10,8 @@ export default function BarcodeSvg({ value }: Props) {
     <Barcode
       value={value}
       format="CODE128"
-      singleBarWidth={1.3}
-      height={32}
+      singleBarWidth={1.6}
+      height={42}
       lineColor="#000000"
       backgroundColor="#FFFFFF"
     />

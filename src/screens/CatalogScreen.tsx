@@ -311,7 +311,7 @@ export default function CatalogScreen() {
 
             {/* Botón activar/desactivar */}
             <TouchableOpacity className="ml-4" onPress={() => toggleStatus(item)}>
-              <Text className="text-xl">{item.active === 1 ? '🟢' : '🔴'}</Text>
+              <Text className="text-xl">{item.active === 1 ? 'x' : '🔴'}</Text>
             </TouchableOpacity>
           </View>
         )}

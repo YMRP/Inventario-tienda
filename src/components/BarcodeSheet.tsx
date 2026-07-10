@@ -40,25 +40,25 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    width: 240,
-    height: 96,
-    borderWidth: 1,
-    borderColor: '#000',
-    margin: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+  width: 240,
+  height: 140,
+  borderWidth: 1,
+  borderColor: '#000',
+  margin: 8,
+  paddingHorizontal: 10,
+  paddingVertical: 8,
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
 
   productName: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
     textAlign: 'center',
   },
 
   info: {
-    fontSize: 10,
+    fontSize: 11,
     marginTop: 4,
   },
 

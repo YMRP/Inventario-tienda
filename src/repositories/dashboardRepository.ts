@@ -4,59 +4,53 @@ import { DashboardStats } from '@/types/types';
  * Obtiene todas las estadísticas del Dashboard.
  */
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const [
-    todaySalesResult,
-    productsResult,
-    variantsResult,
-    lowStockResult,
-    outOfStockResult,
-  ] = await Promise.all([
-    // 💰 Ventas de hoy
-    getOne<{ total: number }>(
-      `
+  const [todaySalesResult, productsResult, variantsResult, lowStockResult, outOfStockResult] =
+    await Promise.all([
+      // 💰 Ventas de hoy
+      getOne<{ total: number }>(
+        `
       SELECT
         COALESCE(SUM(total), 0) AS total
       FROM sales
-      WHERE DATE(created_at) = DATE('now')
-      `
-    ),
+WHERE DATE(created_at) = DATE('now','localtime')      `
+      ),
 
-    // 📦 Productos activos
-    getOne<{ total: number }>(
-      `
+      // 📦 Productos activos
+      getOne<{ total: number }>(
+        `
       SELECT COUNT(*) AS total
       FROM products
       WHERE active = 1
       `
-    ),
+      ),
 
-    // 👕 Variantes totales
-    getOne<{ total: number }>(
-      `
+      // 👕 Variantes totales
+      getOne<{ total: number }>(
+        `
       SELECT COUNT(*) AS total
       FROM product_variants
       `
-    ),
+      ),
 
-    // ⚠️ Stock bajo
-    getOne<{ total: number }>(
-      `
+      // ⚠️ Stock bajo
+      getOne<{ total: number }>(
+        `
       SELECT COUNT(*) AS total
       FROM product_variants
       WHERE available_stock <= minimum_stock
         AND available_stock > 0
       `
-    ),
+      ),
 
-    // ❌ Sin stock
-    getOne<{ total: number }>(
-      `
+      // ❌ Sin stock
+      getOne<{ total: number }>(
+        `
       SELECT COUNT(*) AS total
       FROM product_variants
       WHERE available_stock = 0
       `
-    ),
-  ]);
+      ),
+    ]);
 
   return {
     todaySales: todaySalesResult?.total ?? 0,

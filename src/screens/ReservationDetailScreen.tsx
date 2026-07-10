@@ -131,6 +131,12 @@ export default function ReservationDetailScreen() {
               onPress={handleCancel}>
               <Text className="text-center font-bold text-white">Cancelar apartado</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              className='className="mb-52 p-4" mt-3 rounded-xl bg-yellow-600'
+              onPress={()=>{navigation.navigate('Dashboard')}}>
+                <Text className='text-center font-bold text-white'>INICIO</Text>
+              </TouchableOpacity>
           </>
         )}
       </View>

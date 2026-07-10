@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, Text, Button, Alert, FlatList, TextInput } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { getAvailableToSell } from '@/utils/inventoryService';
@@ -6,7 +6,7 @@ import { createReservation } from '@/repositories/reservationRepository';
 import { getVariantByBarcode } from '@/repositories/variantRepository';
 import { createSale } from '@/repositories/SalesRepository';
 import { getCurrentUser } from '@/auth/auth';
-import { CartItem, ReservationProps } from '@/types/types';
+import { CartItem } from '@/types/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/types/types';
@@ -16,7 +16,7 @@ export default function ScanResultScreen() {
   const [permission, requestPermission] = useCameraPermissions();
 
   const [scanned, setScanned] = useState(false);
-
+  const barcodeInputRef = useRef<TextInput>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showReservationForm, setShowReservationForm] = useState(false);
   const [useCamera, setUseCamera] = useState(false);
@@ -26,7 +26,7 @@ export default function ScanResultScreen() {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [daysToHold, setDaysToHold] = useState('3');
-  const cartItems = cart;
+
   useEffect(() => {
     requestPermission();
   }, []);
@@ -105,7 +105,6 @@ export default function ScanResultScreen() {
         return;
       }
 
-      // 🔥 ALERTA DE APARTADOS
       if (variant.reserved_stock > 0) {
         Alert.alert(
           'Producto apartado',
@@ -117,6 +116,17 @@ export default function ScanResultScreen() {
 
       if (availableToSell <= 0) {
         Alert.alert('Sin disponibilidad', 'Este producto está completamente apartado o sin stock.');
+        return;
+      }
+
+      // Revisar cuántas piezas ya están en el carrito
+      const itemInCart = cart.find((item) => item.variantId === variant.id);
+
+      const quantityInCart = itemInCart?.quantity ?? 0;
+
+      // No permitir agregar más de las disponibles
+      if (quantityInCart >= availableToSell) {
+        Alert.alert('Stock insuficiente', `Solo hay ${availableToSell} piezas disponibles.`);
         return;
       }
 
@@ -132,7 +142,9 @@ export default function ScanResultScreen() {
 
       setBarcode('');
 
-      Alert.alert('Agregado al carrito', variant.product_name);
+      setTimeout(() => {
+        barcodeInputRef.current?.focus();
+      }, 50);
     } catch (error) {
       console.log(error);
       Alert.alert('Error', 'Error al buscar producto');
@@ -145,7 +157,6 @@ export default function ScanResultScreen() {
       return;
     }
 
-    //  VALIDACIÓN REAL DE STOCK (incluye apartados)
     const hasStockError = cart.some((item) => {
       return item.quantity > item.availableStock;
     });
@@ -235,129 +246,143 @@ export default function ScanResultScreen() {
   }
 
   return (
-    <SafeAreaView className='flex-1'>
-    <View className="flex-1">
-      {/* Selector */}
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <View className="flex-1 flex-row p-4">
+        {/* COLUMNA 1: LISTADO DE PRODUCTOS (65% del ancho) */}
+        <View className="mr-4 flex-[0.65] justify-between rounded-xl bg-white p-4">
+          <View className="flex-1">
+            <Text className="mb-2 text-xl font-bold">Carrito</Text>
 
-      <View className="bg-white p-4">
-        <Text className="mb-3 text-lg font-bold">Método de captura</Text>
+            {/* FlatList genera el scroll automático si hay muchos productos */}
+            <FlatList
+              data={cart}
+              keyExtractor={(item) => item.variantId.toString()}
+              renderItem={({ item }) => (
+                <View className="mb-4 rounded-lg border bg-gray-50 p-3">
+                  <Text className="text-lg font-semibold">{item.name}</Text>
 
-        <Button
-          title={useCamera ? 'Cambiar a Scanner Físico' : 'Cambiar a Cámara'}
-          onPress={() => setUseCamera(!useCamera)}
-        />
-      </View>
+                  <Text className="text-gray-600">
+                    {item.color} • Talla {item.size}
+                  </Text>
 
-      {/* Scanner */}
+                  <Text className="mt-1">Precio: ${item.unitPrice.toFixed(2)}</Text>
+                  <Text className="mt-1">Stock disponible: {item.availableStock}</Text>
+                  <Text className="mt-1">Cantidad: {item.quantity}</Text>
+                  <Text className="mb-3 font-bold">
+                    Total: ${(item.unitPrice * item.quantity).toFixed(2)}
+                  </Text>
 
-      <View style={{ flex: 1 }}>
-        {useCamera ? (
-          <>
-            <CameraView
-              style={{ flex: 1 }}
-              onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                  {/* Botones del artículo controlados en su ancho */}
+                  <View className="flex-row justify-start gap-2">
+                    <Button title=" - " onPress={() => decreaseQuantity(item.variantId)} />
+                    <Button title=" + " onPress={() => increaseQuantity(item.variantId)} />
+                    <Button
+                      title="Apartar"
+                      onPress={() => setShowReservationForm(true)}
+                      disabled={
+                        cart.length === 0 || cart.some((i) => i.quantity > i.availableStock)
+                      }
+                    />
+                    <Button
+                      title="Eliminar"
+                      color="red"
+                      onPress={() => removeItem(item.variantId)}
+                    />
+                  </View>
+                </View>
+              )}
             />
+          </View>
 
-            {scanned && (
-              <View className="absolute bottom-10 w-full px-5">
-                <Button title="Escanear otra vez" onPress={() => setScanned(false)} />
+          {/* Sección fija de totales al fondo de la primera columna */}
+          <View className="mt-2 border-t border-gray-200 pt-3">
+            <Text className="mb-3 text-lg font-bold">Total: ${total.toFixed(2)}</Text>
+            <Button title="Confirmar venta" onPress={handleCheckout} />
+            <View className="mt-2">
+              <Button title="Vaciar carrito" color="red" onPress={clearCart} />
+            </View>
+          </View>
+        </View>
+
+        {/* COLUMNA 2: MÉTODOS DE CAPTURA Y FORMULARIOS (35% del ancho) */}
+        <View className="flex-[0.35] flex-col">
+          {/* Selector de Método */}
+          <View className="mb-4 rounded-xl bg-white p-4">
+            <Text className="mb-3 text-lg font-bold">Método de captura</Text>
+            <Button
+              title={useCamera ? 'Cambiar a Scanner Físico' : 'Cambiar a Cámara'}
+              onPress={() => setUseCamera(!useCamera)}
+            />
+          </View>
+
+          {/* Área de Captura (Cámara o Input manual) */}
+          <View className="flex-1 justify-center overflow-hidden rounded-xl bg-white">
+            {useCamera ? (
+              <View className="relative flex-1">
+                <CameraView
+                  style={{ flex: 1 }}
+                  onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                />
+                {scanned && (
+                  <View className="absolute bottom-5 left-5 right-5">
+                    <Button title="Escanear otra vez" onPress={() => setScanned(false)} />
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View className="p-5">
+                <Text className="mb-2 font-semibold">Código de barras</Text>
+                <TextInput
+                  className="rounded-lg border bg-gray-50 p-4"
+                  placeholder="Escanee o escriba el código"
+                  value={barcode}
+                  onChangeText={setBarcode}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onSubmitEditing={() => searchBarcode(barcode)}
+                  ref={barcodeInputRef}
+                  blurOnSubmit={false}
+                />
+                <View className="mt-3">
+                  <Button title="Buscar" onPress={() => searchBarcode(barcode)} />
+                </View>
               </View>
             )}
-          </>
-        ) : (
-          <View className="p-5">
-            <Text className="mb-2 font-semibold">Código de barras</Text>
-
-            <TextInput
-              className="rounded-lg border bg-white p-4"
-              placeholder="Escanee o escriba el código"
-              value={barcode}
-              onChangeText={setBarcode}
-              autoCapitalize="none"
-              autoCorrect={false}
-              onSubmitEditing={() => searchBarcode(barcode)}
-            />
-
-            <View className="mt-3">
-              <Button title="Buscar" onPress={() => searchBarcode(barcode)} />
-            </View>
           </View>
-        )}
-      </View>
 
-      {/* Carrito */}
+          {/* Formulario de Apartados (Si está activo, aparece abajo en la columna 2) */}
+          {showReservationForm && (
+            <View className="mt-4 rounded-xl bg-white p-4">
+              <Text className="mb-2 font-bold">Datos del apartado</Text>
 
-      <View className="bg-white p-4">
-        <Text className="mb-2 text-xl font-bold">Carrito</Text>
-        <FlatList
-          data={cart}
-          keyExtractor={(item) => item.variantId.toString()}
-          renderItem={({ item }) => (
-            <View className="mb-4 rounded-lg border bg-gray-50 p-3">
-              <Text className="text-lg font-semibold">{item.name}</Text>
+              <TextInput
+                className="mb-3 rounded-lg border bg-gray-50 p-3"
+                placeholder="Nombre del cliente"
+                value={customerName}
+                onChangeText={setCustomerName}
+              />
 
-              <Text className="text-gray-600">
-                {item.color} • Talla {item.size}
-              </Text>
+              <TextInput
+                className="mb-3 rounded-lg border bg-gray-50 p-3"
+                placeholder="Teléfono"
+                value={customerPhone}
+                onChangeText={setCustomerPhone}
+                keyboardType="phone-pad"
+              />
 
-              <Text className="mt-1">Precio: ${item.unitPrice.toFixed(2)}</Text>
+              <TextInput
+                className="mb-3 rounded-lg border bg-gray-50 p-3"
+                placeholder="Días para recoger"
+                value={daysToHold}
+                onChangeText={setDaysToHold}
+                keyboardType="numeric"
+              />
 
-              <Text className="mt-1">Stock disponible: {item.availableStock}</Text>
-
-              <Text className="mt-1">Cantidad: {item.quantity}</Text>
-
-              <Text className="mb-3">Total: ${(item.unitPrice * item.quantity).toFixed(2)}</Text>
-
-              <View className="flex-row justify-between">
-                <Button title="-" onPress={() => decreaseQuantity(item.variantId)} />
-                <Button title="+" onPress={() => increaseQuantity(item.variantId)} />
-                <Button
-                  title="Apartar Producto"
-                  onPress={() => setShowReservationForm(true)}
-                  disabled={cart.length === 0 || cart.some((i) => i.quantity > i.availableStock)}
-                />
-                <Button title="Eliminar" color="red" onPress={() => removeItem(item.variantId)} />
-              </View>
+              <Button title="Guardar apartado" onPress={handleApartar} />
             </View>
           )}
-        />
-        <Text className="mt-3 text-lg font-bold">Total: ${total.toFixed(2)}</Text>
-        <Button title="Confirmar venta" onPress={handleCheckout} />
-        {showReservationForm && (
-          <View className="mt-4 rounded-xl bg-gray-100 p-4">
-            <Text className="mb-2 font-bold">Datos del apartado</Text>
-
-            <TextInput
-              className="mb-3 rounded-lg border bg-white p-3"
-              placeholder="Nombre del cliente"
-              value={customerName}
-              onChangeText={setCustomerName}
-            />
-
-            <TextInput
-              className="mb-3 rounded-lg border bg-white p-3"
-              placeholder="Teléfono"
-              value={customerPhone}
-              onChangeText={setCustomerPhone}
-              keyboardType="phone-pad"
-            />
-
-            <TextInput
-              className="mb-3 rounded-lg border bg-white p-3"
-              placeholder="Días para recoger"
-              value={daysToHold}
-              onChangeText={setDaysToHold}
-              keyboardType="numeric"
-            />
-
-            <Button title="Guardar apartado" onPress={handleApartar} />
-          </View>
-        )}
-        <View className="mt-3">
-          <Button title="Vaciar carrito" color="red" onPress={clearCart} />
         </View>
       </View>
-    </View>
     </SafeAreaView>
   );
 }
