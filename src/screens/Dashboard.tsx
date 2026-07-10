@@ -11,6 +11,7 @@ import { generateBarcodePdf } from '@/services/barcodePDF.service';
 import BarcodeCapture from '@/components/BarcodeCapture';
 import { getBarcodeLabels } from '@/repositories/barcodeRepository';
 import { getDashboardStats } from '@/repositories/dashboardRepository';
+import { getStorageInfo } from '@/services/storage.service';
 import {
   getTopSellingProduct,
   getLeastSellingProduct,
@@ -28,7 +29,10 @@ export default function Dashboard() {
 
   const [barcodeLabels, setBarcodeLabels] = useState<BarcodeLabel[]>([]);
   const user = getCurrentUser();
-
+  const [storage, setStorage] = useState({
+    databaseSize: 0,
+    freeSpace: 0,
+  });
   const isAdmin = user?.role === 'ADMIN';
 
   const [loading, setLoading] = useState(true);
@@ -64,12 +68,18 @@ export default function Dashboard() {
   };
 
   async function loadStats() {
+    console.log('LOAD STATS');
+
     const dashboard = await getDashboardStats();
+
     await expireReservations();
     await loadDashboard();
-    console.log('-------------------------BARCODES');
-    await exportBarcodes();
-    console.log('-------------------------');
+
+    console.log('Antes de getStorageInfo');
+
+    const storageInfo = await getStorageInfo();
+
+    setStorage(storageInfo);
 
     const [top, least, topListData] = await Promise.all([
       getTopSellingProduct(),
@@ -152,7 +162,21 @@ export default function Dashboard() {
       message: 'Todo el inventario se encuentra disponible.',
     };
   }
+  function formatBytes(bytes: number) {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    }
 
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(2)} KB`;
+    }
+
+    if (bytes < 1024 * 1024 * 1024) {
+      return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+  }
   if (loading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center">
@@ -392,6 +416,14 @@ export default function Dashboard() {
                 className="rounded-2xl bg-gray-800 p-6">
                 <Text className="text-lg font-bold text-white">Restauración de Base de Datos</Text>
               </TouchableOpacity>
+
+              <View className="mt-4 rounded-xl bg-white p-4 shadow">
+                <Text className="text-lg font-bold">Almacenamiento</Text>
+
+                <Text className="mt-3">Base de datos: {formatBytes(storage.databaseSize)}</Text>
+
+                <Text className="mt-2">Espacio libre: {formatBytes(storage.freeSpace)}</Text>
+              </View>
 
               {/* Aquí va BarcodeCapture */}
               {barcodeLabels.length > 0 && (
