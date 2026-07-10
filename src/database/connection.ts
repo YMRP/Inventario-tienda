@@ -46,3 +46,13 @@ export async function getDatabase() {
    */
   return db;
 }
+
+export async function closeDatabase() {
+  if (!db) {
+    return;
+  }
+
+  await db.closeAsync();
+
+  db = null;
+}

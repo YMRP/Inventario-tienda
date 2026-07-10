@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, View, Text, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -18,6 +18,8 @@ import {
 } from '@/repositories/statsRepository';
 import { expireReservations } from '@/repositories/reservationRepository';
 import { exportBarcodes } from '@/services/barcodeExport.service';
+import { createBackup } from '@/services/backup.service';
+import { restoreBackup, selectBackupFile } from '@/services/restore.service';
 type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
 export default function Dashboard() {
@@ -48,7 +50,7 @@ export default function Dashboard() {
       const labels = await getBarcodeLabels();
 
       if (labels.length === 0) {
-        console.log('No existen etiquetas');
+        Alert.alert('No existen etiquetas');
         return;
       }
 
@@ -350,8 +352,45 @@ export default function Dashboard() {
                 <Text className="text-lg font-bold text-white">Reportes</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    await createBackup();
+                  } catch (error) {
+                    console.log('Error export Respaldo DB, Dashboard: ', error);
+                  }
+                }}
+                className="rounded-2xl bg-gray-800 p-6">
                 <Text className="text-lg font-bold text-white">Respaldo de Base de Datos</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    const file = await selectBackupFile();
+
+                    if (!file) {
+                      return;
+                    }
+
+                    const restored = await restoreBackup(file.uri);
+
+                    if (restored) {
+                      Alert.alert(
+                        'Restauración completada',
+                        'La base de datos fue restaurada correctamente.\n\nCierra sesión vuelve a iniciar para cargar la información restaurada.'
+                      );
+                    } else {
+                      Alert.alert('Error', 'No fue posible restaurar la base de datos.');
+                    }
+
+                    await restoreBackup(file.uri);
+                  } catch (error) {
+                    console.log('Error backup Respaldo DB, Dashboard: ', error);
+                  }
+                }}
+                className="rounded-2xl bg-gray-800 p-6">
+                <Text className="text-lg font-bold text-white">Restauración de Base de Datos</Text>
               </TouchableOpacity>
 
               {/* Aquí va BarcodeCapture */}

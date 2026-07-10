@@ -373,7 +373,7 @@ CREATE TABLE IF NOT EXISTS variant_templates (
       CHECK(remaining_balance >= 0),
 
     due_date TEXT NOT NULL,
-
+expires_at TEXT,
     status TEXT NOT NULL
       CHECK(
         status IN (
@@ -518,8 +518,5 @@ CREATE TABLE IF NOT EXISTS variant_templates (
   CREATE INDEX IF NOT EXISTS idx_reservations_status
   ON reservations(status);
   `,
-  `
-ALTER TABLE reservations
-ADD COLUMN expires_at TEXT;
-  `,
+  
 ];
