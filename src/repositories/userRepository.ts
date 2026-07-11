@@ -2,13 +2,13 @@ import bcrypt from "bcryptjs";
 
 import { execute, getAll, getOne } from "@/database/db";
 
-import { UserRole, User, CreateUserProps } from "@/types/types";
+import {  User, CreateUserProps } from "@/types/types";
 import { getCurrentDateTime } from "@/utils/date";
 
 
 //Obtenemos el usuario antes de cualquier cosa
 //Promise<User | null> significa: puede devolver User o Null
-export async function findByUsername(username: String): Promise<User | null> {
+export async function findByUsername(username: string): Promise<User | null> {
     return await getOne<User>(`SELECT * FROM users WHERE username = ? LIMIT 1`, [username])
 }
 

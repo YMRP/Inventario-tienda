@@ -1,6 +1,6 @@
 import { User, LoginResult } from '@/types/types';
 import { findByUsername } from '@/repositories/userRepository';
-import { hashPassword, verifyPassword } from '@/utils/hash';
+import {  verifyPassword } from '@/utils/hash';
 
 let currentUser: User | null = null;
 

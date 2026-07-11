@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, ProductDetail } from '@/types/types';
 import { getProductDetail } from '@/repositories/productRepository';

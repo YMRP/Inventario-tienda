@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, View, Text, ActivityIndicator, Alert } from 'react-native';
+import { ScrollView, View, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { logout, getCurrentUser } from '@/auth/auth';
@@ -18,7 +17,6 @@ import {
   getTopProducts,
 } from '@/repositories/statsRepository';
 import { expireReservations } from '@/repositories/reservationRepository';
-import { exportBarcodes } from '@/services/barcodeExport.service';
 import { createBackup } from '@/services/backup.service';
 import { restoreBackup, selectBackupFile } from '@/services/restore.service';
 type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
@@ -165,32 +163,6 @@ export default function Dashboard() {
     navigation.replace('Login');
   }
 
-  function getBusinessStatus() {
-    if (stats.outOfStock > 0) {
-      return {
-        icon: '🔴',
-        color: '#DC2626',
-        title: 'Estado crítico',
-        message: `Hay ${stats.outOfStock} productos agotados.`,
-      };
-    }
-
-    if (stats.lowStock > 0) {
-      return {
-        icon: '🟠',
-        color: '#EA580C',
-        title: 'Atención',
-        message: `Hay ${stats.lowStock} variantes con stock bajo.`,
-      };
-    }
-
-    return {
-      icon: '🟢',
-      color: '#16A34A',
-      title: 'Inventario saludable',
-      message: 'Todo el inventario se encuentra disponible.',
-    };
-  }
   function formatBytes(bytes: number) {
     if (bytes < 1024) {
       return `${bytes} B`;
@@ -401,8 +373,10 @@ export default function Dashboard() {
                 <Text className="text-lg font-bold text-white">Catálogos</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity className="rounded-2xl bg-gray-800 p-6">
-                <Text className="text-lg font-bold text-white">Reportes</Text>
+              <TouchableOpacity
+                className="rounded-2xl bg-gray-800 p-6"
+                onPress={() => navigation.navigate('MovementReport')}>
+                <Text className="text-lg font-bold text-white">Movimientos</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

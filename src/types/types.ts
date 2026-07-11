@@ -63,13 +63,13 @@ export type RootStackParamList = {
   inventory: { filter?: 'ALL' | 'LOW_STOCK' | 'OUT_OF_STOCK' } | undefined;
   NewVariant: {
     productId: number;
-    categoryId: number
+    categoryId: number;
   };
   Scan: undefined;
   ProductDetail: {
     productId: number;
   };
-
+  MovementReport: undefined;
   EditProduct: {
     productId: number;
   };
@@ -89,7 +89,7 @@ export type RootStackParamList = {
   ReservationDetail: {
     reservationId: number;
   };
-  CatalogScreen:undefined
+  CatalogScreen: undefined;
 };
 
 export type Product = {
@@ -117,6 +117,34 @@ export type InventoryProduct = {
   sale_price: number;
   total_stock: number;
   variants: number;
+};
+
+export type OutOfStockVariant = {
+  id: number;
+
+  variant_id: number;
+
+  name: string;
+
+  brand: string;
+
+  category: string;
+
+  sale_price: number;
+
+  total_stock: number;
+
+  variants: number;
+
+  color: string;
+
+  size: string;
+
+  barcode: string;
+
+  available_stock: number;
+
+  minimum_stock: number;
 };
 
 export type Props = {
@@ -185,4 +213,18 @@ export type BarcodeLabel = {
   color: string;
   size: string;
   barcode: string;
+};
+
+export type InventoryMovementReport = {
+  id: number;
+  movement_type: string;
+  quantity: number;
+  notes: string | null;
+  created_at: string;
+
+  product_name: string;
+  color: string;
+  size: string;
+
+  user_name: string | null;
 };

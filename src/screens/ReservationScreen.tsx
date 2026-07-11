@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getAllReservations } from '@/repositories/reservationRepository';
-import { ReservationDetailItem, RootStackParamList, ReservationProps } from '@/types/types';
+import {  RootStackParamList, ReservationProps } from '@/types/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReservationsScreen() {

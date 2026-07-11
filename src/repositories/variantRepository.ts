@@ -1,7 +1,5 @@
 import { getAll, getOne, execute } from '@/database/db';
-import { CatalogItem, VariantBarcodeResult } from '@/types/types';
-import { getCurrentUser } from '@/auth/auth';
-import { ProductVariantDetail } from '@/types/types';
+import { CatalogItem, VariantBarcodeResult, ProductVariantDetail } from '@/types/types';
 import { getCurrentDateTime } from '@/utils/date';
 /**
  * Obtiene todos los colores activos.

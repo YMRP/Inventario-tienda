@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { InventoryProduct, Props } from "@/types/types";
+import {  Props } from "@/types/types";
 
 
 export default function ProductCard({

@@ -1,8 +1,7 @@
 import { execute, getAll, getOne } from '@/database/db';
-import { CatalogItem, Product, ProductDetail } from '@/types/types';
-import { InventoryProduct } from '@/types/types';
+import { CatalogItem, ProductDetail, InventoryProduct, OutOfStockVariant } from '@/types/types';
 import { getCurrentDateTime } from '@/utils/date';
-
+import { executeTransaction } from '@/database/db';
 /**
  * Obtiene todas las categorías activas.
  */
@@ -148,9 +147,7 @@ WHERE p.active = 1
 /**
  * Obtiene la información principal de un producto.
  */
-export async function getProductDetail(
-  productId: number
-): Promise<ProductDetail | null> {
+export async function getProductDetail(productId: number): Promise<ProductDetail | null> {
   return await getOne(
     `
     SELECT
@@ -327,4 +324,114 @@ export async function brandHasProducts(brandId: number): Promise<boolean> {
   );
 
   return (result?.total ?? 0) > 0;
+}
+
+export async function getOutOfStockVariants(): Promise<OutOfStockVariant[]> {
+  return await getAll(
+    `
+    SELECT
+
+    p.id,
+
+    pv.id AS variant_id,
+
+    p.name,
+
+    b.name AS brand,
+
+    c.name AS category,
+
+    co.name AS color,
+
+    s.name AS size,
+
+    pv.barcode,
+
+    p.sale_price,
+
+    pv.available_stock AS total_stock,
+
+    1 AS variants,
+
+    pv.available_stock,
+
+    pv.minimum_stock
+
+    FROM product_variants pv
+
+    INNER JOIN products p
+      ON p.id = pv.product_id
+
+    INNER JOIN brand_catalog b
+      ON b.id = p.brand_id
+
+    INNER JOIN categories c
+      ON c.id = p.category_id
+
+    INNER JOIN colors co
+      ON co.id = pv.color_id
+
+    INNER JOIN sizes s
+      ON s.id = pv.size_id
+
+    WHERE
+
+      p.active = 1
+
+      AND pv.active = 1
+
+      AND pv.available_stock = 0
+
+    ORDER BY
+
+      p.name,
+      co.name,
+      s.name
+    `
+  );
+}
+
+export async function restockVariant(
+  variantId: number,
+  quantity: number,
+  notes: string,
+  userId: number
+) {
+  await executeTransaction(async (db) => {
+    await db.runAsync(
+      `
+      UPDATE product_variants
+      SET
+        available_stock = available_stock + ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+      `,
+      [quantity, variantId]
+    );
+
+    await db.runAsync(
+      `
+      INSERT INTO inventory_movements (
+
+        variant_id,
+        movement_type,
+        quantity,
+        notes,
+        user_id
+
+      )
+
+      VALUES (
+
+        ?,
+        'ENTRY',
+        ?,
+        ?,
+        ?
+
+      )
+      `,
+      [variantId, quantity, notes.trim() === '' ? null : notes, userId]
+    );
+  });
 }

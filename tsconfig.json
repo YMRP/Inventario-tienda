@@ -2,6 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
+    "noUnusedLocals": true,
     "strict": true,
     "baseUrl": ".",
     "paths": {

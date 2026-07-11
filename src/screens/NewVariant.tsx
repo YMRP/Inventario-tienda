@@ -8,7 +8,6 @@ import {
   createVariant,
   generateUniqueBarcode,
   getAllColors,
-  getSizesByCategory,
   getSizesByTemplate,
   getTemplateByCategory,
   registerInventoryMovement,

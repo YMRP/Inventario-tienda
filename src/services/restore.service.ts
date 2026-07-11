@@ -1,7 +1,6 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { closeDatabase, getDatabase } from '@/database/connection';
-import * as Updates from 'expo-updates';
 
 export async function selectBackupFile() {
   try {

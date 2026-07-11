@@ -15,6 +15,7 @@ import SaleDetailScreen from '@/screens/SaleDetailScreen';
 import ReservationsScreen from '@/screens/ReservationScreen';
 import ReservationDetailScreen from '@/screens/ReservationDetailScreen';
 import CatalogScreen from '@/screens/CatalogScreen';
+import MovementReportScreen from '@/screens/MovementReportScreen';
 /**
  * Creamos el Stack Navigator.
  *
@@ -47,6 +48,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Reservations" component={ReservationsScreen} />
         <Stack.Screen name="ReservationDetail" component={ReservationDetailScreen} />
         <Stack.Screen name="CatalogScreen" component={CatalogScreen} />
+        <Stack.Screen name="MovementReport" component={MovementReportScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
