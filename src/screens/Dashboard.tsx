@@ -22,7 +22,7 @@ import { exportBarcodes } from '@/services/barcodeExport.service';
 import { createBackup } from '@/services/backup.service';
 import { restoreBackup, selectBackupFile } from '@/services/restore.service';
 type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
-
+import { resetDatabase } from '@/services/databaseReset.service';
 export default function Dashboard() {
   const navigation = useNavigation<DashboardNavigationProp>();
   const barcodeRef = useRef<React.ElementRef<typeof ViewShot>>(null);
@@ -66,6 +66,35 @@ export default function Dashboard() {
       console.log('Error cargando etiquetas:', error);
     }
   };
+
+  async function handleResetDatabase() {
+    Alert.alert(
+      'Reiniciar Base de Datos',
+      'Esta acción eliminará toda la información almacenada.\n\nSe recomienda crear un respaldo antes de continuar.\n\n¿Deseas continuar?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            const success = await resetDatabase();
+
+            if (success) {
+              Alert.alert(
+                'Proceso completado',
+                'La base de datos fue reiniciada correctamente.\n\nCierra y vuelve a abrir la aplicación.'
+              );
+            } else {
+              Alert.alert('Error', 'No fue posible reiniciar la base de datos.');
+            }
+          },
+        },
+      ]
+    );
+  }
 
   async function loadStats() {
     console.log('LOAD STATS');
@@ -386,6 +415,12 @@ export default function Dashboard() {
                 }}
                 className="rounded-2xl bg-gray-800 p-6">
                 <Text className="text-lg font-bold text-white">Respaldo de Base de Datos</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="rounded-2xl bg-red-700 p-6"
+                onPress={handleResetDatabase}>
+                <Text className="text-lg font-bold text-white">Reiniciar Base de Datos</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
