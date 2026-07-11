@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ScrollView,
@@ -8,29 +8,27 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-
 import { getInventoryMovementsReport } from '@/repositories/reportRepository';
 import { InventoryMovementReport } from '@/types/types';
-import { useFocusEffect } from '@react-navigation/native';
-
+import { getCurrentDate } from '@/utils/date';
 export default function MovementReportScreen() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [movements, setMovements] = useState<InventoryMovementReport[]>([]);
-
+  const [onlyToday, setOnlyToday] = useState(false);
   const [filter, setFilter] = useState<
     'ALL' | 'ENTRY' | 'SALE' | 'RESERVATION' | 'RESERVATION_CANCEL' | 'ADJUSTMENT'
   >('ALL');
 
-  useFocusEffect(
-  useCallback(() => {
+  useEffect(() => {
     loadMovements();
-  }, [])
-);
+  }, [onlyToday]);
 
   async function loadMovements() {
     try {
-      const result = await getInventoryMovementsReport();
+      setLoading(true);
+
+      const result = await getInventoryMovementsReport(onlyToday ? getCurrentDate() : undefined);
 
       setMovements(result);
     } finally {
@@ -103,6 +101,7 @@ export default function MovementReportScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView
+        className="flex-1"
         contentContainerStyle={{
           padding: 20,
           paddingBottom: 40,
@@ -144,6 +143,13 @@ export default function MovementReportScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
+        <TouchableOpacity
+          className={`mb-5 rounded-xl p-4 ${onlyToday ? 'bg-blue-600' : 'bg-gray-300'}`}
+          onPress={() => setOnlyToday(!onlyToday)}>
+          <Text className="text-center font-bold text-white">
+            {onlyToday ? 'Mostrando solo hoy' : 'Mostrar solo hoy'}
+          </Text>
+        </TouchableOpacity>
         <TextInput
           value={search}
           onChangeText={setSearch}

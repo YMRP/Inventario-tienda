@@ -127,7 +127,7 @@ export default function Dashboard() {
       try {
         if (!barcodeRef.current) return;
 
-        const base64 = await barcodeRef.current.capture();
+        const base64 = await barcodeRef.current!.capture!();
 
         await generateBarcodePdf(base64);
 

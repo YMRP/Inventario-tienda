@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, Modal, Alert, ScrollView } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Picker } from '@react-native-picker/picker';
@@ -121,7 +121,7 @@ export default function InventoryScreen() {
   }
   return (
     <SafeAreaView className="flex-1 ">
-      <View className="flex bg-gray-100">
+      <ScrollView className="flex bg-gray-100">
         <Text className="px-5 pt-5 text-2xl font-bold">Inventario</Text>
 
         <Text className="px-5 pb-4 text-gray-500">
@@ -214,7 +214,7 @@ export default function InventoryScreen() {
             )}
           />
         )}
-      </View>
+      </ScrollView>
       <Modal visible={showRestockModal} transparent animationType="fade">
         <View
           className="flex-1 items-center justify-center"

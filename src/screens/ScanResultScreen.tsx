@@ -152,6 +152,23 @@ export default function ScanResultScreen() {
   }
 
   async function handleApartar() {
+    if (!customerName.trim()) {
+      Alert.alert('Ingrese el nombre de la persona');
+      return;
+    }
+
+    if(Number(daysToHold)<=0){
+       Alert.alert('El número de dias apartados debe ser mayor que cero');
+      return;
+    }
+
+     
+
+    if (!/^\d{10}$/.test(customerPhone.trim())) {
+      Alert.alert('Error', 'El teléfono debe contener exactamente 10 dígitos.');
+      return;
+    }
+
     if (cart.length === 0) {
       Alert.alert('Carrito vacío', 'Agrega productos antes de apartar.');
       return;

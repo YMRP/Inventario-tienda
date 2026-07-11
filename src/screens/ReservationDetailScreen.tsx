@@ -113,7 +113,7 @@ export default function ReservationDetailScreen() {
 
               <Text className="text-gray-600">Precio: ${item.unit_price}</Text>
 
-              <Text className="font-bold">Subtotal: ${item.subtotal}</Text>
+              <Text className="font-bold">total: ${item.subtotal}</Text>
             </View>
           )}
         />

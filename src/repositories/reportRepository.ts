@@ -2,11 +2,22 @@ import { getAll } from '@/database/db';
 import { InventoryMovementReport } from '@/types/types';
 
 
+export async function getInventoryMovementsReport(date?: string): Promise<InventoryMovementReport[]> {
+  let where = '';
 
-export async function getInventoryMovementsReport(): Promise<InventoryMovementReport[]> {
-  return await getAll<InventoryMovementReport>(`
+  const params: any[] = [];
+
+  if (date) {
+    where = `
+      WHERE im.created_at LIKE ?
+    `;
+
+    params.push(`${date}%`);
+  }
+
+  return await getAll<InventoryMovementReport>(
+    `
     SELECT
-
       im.id,
       im.movement_type,
       im.quantity,
@@ -36,6 +47,10 @@ export async function getInventoryMovementsReport(): Promise<InventoryMovementRe
     LEFT JOIN users u
       ON u.id = im.user_id
 
+    ${where}
+
     ORDER BY im.created_at DESC
-  `);
+    `,
+    params
+  );
 }

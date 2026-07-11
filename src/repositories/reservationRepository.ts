@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/auth/auth';
 import { execute, getAll, getOne, executeTransaction } from '@/database/db';
 import { ReservationDetailItem, ReservationProps } from '@/types/types';
 import { getCurrentDateTime } from '@/utils/date';
@@ -54,33 +55,52 @@ VALUES (?, ?, ?, 0, ?, ?, 'ACTIVE', ?, ?)
   const reservationId = result.lastInsertRowId;
 
   // 2. items + stock
+  // 2. items + stock
   for (const item of items) {
     const subtotal = item.quantity * item.unitPrice;
 
     // insertar item
     await execute(
       `
-      INSERT INTO reservation_items (
-        reservation_id,
-        variant_id,
-        quantity,
-        unit_price,
-        subtotal
-      )
-      VALUES (?, ?, ?, ?, ?)
-      `,
+    INSERT INTO reservation_items (
+      reservation_id,
+      variant_id,
+      quantity,
+      unit_price,
+      subtotal
+    )
+    VALUES (?, ?, ?, ?, ?)
+    `,
       [reservationId, item.variantId, item.quantity, item.unitPrice, subtotal]
     );
 
-    // 📉 mover stock a reservado
+    // mover stock a reservado
     await execute(
       `
-      UPDATE product_variants
-      SET available_stock = available_stock - ?,
-          reserved_stock = reserved_stock + ?
-      WHERE id = ?
-      `,
+    UPDATE product_variants
+    SET
+      available_stock = available_stock - ?,
+      reserved_stock = reserved_stock + ?
+    WHERE id = ?
+    `,
       [item.quantity, item.quantity, item.variantId]
+    );
+
+    // registrar movimiento de inventario
+    const user = getCurrentUser();
+
+    await execute(
+      `
+    INSERT INTO inventory_movements (
+      variant_id,
+      movement_type,
+      quantity,
+      notes,
+      user_id
+    )
+    VALUES (?, 'RESERVATION', ?, ?, ?)
+    `,
+      [item.variantId, item.quantity, `Apartado #${reservationId}`, user?.id ?? null]
     );
   }
 
@@ -281,15 +301,35 @@ export async function cancelReservation(reservationId: number) {
     for (const item of items) {
       await db.runAsync(
         `
-        UPDATE product_variants
-SET
-  available_stock = available_stock + ?,
-  reserved_stock = reserved_stock - ?
-WHERE
-  id = ?
-  AND reserved_stock >= ?
-        `,
+              UPDATE product_variants
+      SET
+        available_stock = available_stock + ?,
+        reserved_stock = reserved_stock - ?
+      WHERE
+        id = ?
+        AND reserved_stock >= ?
+              `,
         [item.quantity, item.quantity, item.variant_id, item.quantity]
+      );
+      const user = getCurrentUser();
+
+      await db.runAsync(
+        `
+  INSERT INTO inventory_movements (
+    variant_id,
+    movement_type,
+    quantity,
+    notes,
+    user_id
+  )
+  VALUES (?, 'RESERVATION_CANCEL', ?, ?, ?)
+  `,
+        [
+          item.variant_id,
+          item.quantity,
+          `Cancelación de apartado #${reservationId}`,
+          user?.id ?? null,
+        ]
       );
     }
 

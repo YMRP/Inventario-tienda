@@ -19,7 +19,7 @@ function Login() {
       setMessage('');
       console.log('despues del set');
 
-      const result = await login(username, password);
+      const result = await login(username.trim(), password);
       console.log('result: ', result);
       setMessage(result.message);
 
