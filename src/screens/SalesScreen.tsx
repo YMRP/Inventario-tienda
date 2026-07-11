@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback,  useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -25,7 +25,7 @@ export default function SalesScreen() {
     count: 0,
   });
 
-  useEffect(() => {}, []);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -52,92 +52,204 @@ export default function SalesScreen() {
     setTopProducts(topData);
   }
 
-  return (
-    <SafeAreaView className="flex-1 bg-gray-100 p-4">
-      <ScrollView className='flex-1'>
-        <Text className="mb-4 text-2xl font-bold">Historial de ventas</Text>
+return (
+  <SafeAreaView className="flex-1 bg-slate-50">
+    <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+      {/* HEADER */}
+      <View className="flex-row items-start justify-between px-8 pb-6 pt-8">
+        <View>
+          <View className="mb-3 flex-row items-center gap-2">
+            <View className="h-3 w-3 rounded-full bg-blue-600" />
+            <Text className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Ventas
+            </Text>
+          </View>
 
-        {/* CALENDARIO */}
-        <Calendar
-          onDayPress={(day) => {
-            setSelectedDate(day.dateString);
-            loadSales(day.dateString);
-          }}
-          markedDates={{
-            [selectedDate]: {
-              selected: true,
-              selectedColor: '#2563eb',
-            },
-          }}
-          theme={{
-            selectedDayBackgroundColor: '#2563eb',
-            todayTextColor: '#ef4444',
-            arrowColor: '#2563eb',
-          }}
-        />
-
-        {/* RESUMEN DEL DÍA */}
-        <View className="mt-3 rounded-xl bg-green-50 p-4">
-          <Text className="text-sm text-green-700">Total vendido en el dia</Text>
-
-          <Text className="mt-1 text-lg font-bold text-green-800">
-            ${dayStats.total.toFixed(2)}
+          <Text className="text-3xl font-black text-slate-900">
+            Historial de ventas
           </Text>
 
-          <Text className="text-green-700">{dayStats.count} ventas</Text>
+          <Text className="mt-2 text-base text-slate-500">
+            Consulta las ventas realizadas por fecha.
+          </Text>
         </View>
 
-        <View className="mt-4 rounded-xl bg-white p-4 shadow">
-          <Text className="mb-2 font-bold">Productos más vendidos del día</Text>
-
-          {topProducts.length === 0 ? (
-            <Text className="text-gray-500">No hay ventas en este día</Text>
-          ) : (
-            topProducts.map((item) => (
-              <View key={item.id} className="flex-row justify-between py-1">
-                <Text>{item.name}</Text>
-
-                <Text className="font-bold">{item.total_sold} unidades</Text>
-              </View>
-            ))
-          )}
-        </View>
-
-        {/* BOTÓN VER TODAS */}
         <TouchableOpacity
-          className="mt-3 rounded-lg bg-gray-300 p-3"
-          onPress={() => {
-            const today = getCurrentDate();
-            setSelectedDate(today);
-            loadSales(today);
-          }}>
-          <Text className="text-center font-bold">Ver ventas de hoy</Text>
+          className="rounded-2xl border border-slate-200 bg-white px-5 py-3"
+          onPress={() => navigation.goBack()}>
+          <Text className="font-bold text-slate-700">← Volver</Text>
         </TouchableOpacity>
+      </View>
 
-        {/* LISTA DE VENTAS */}
-        <FlatList
-          className="mt-4"
-          data={sales}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
+      {/* CONTENIDO */}
+      <View className="flex-row gap-6 px-8">
+        {/* PANEL IZQUIERDO */}
+        <View className="w-[380px] gap-6">
+
+          {/* CALENDARIO */}
+          <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <Text className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Fecha
+            </Text>
+
+            <Calendar
+              onDayPress={(day) => {
+                setSelectedDate(day.dateString);
+                loadSales(day.dateString);
+              }}
+              markedDates={{
+                [selectedDate]: {
+                  selected: true,
+                  selectedColor: '#2563eb',
+                },
+              }}
+              theme={{
+                selectedDayBackgroundColor: '#2563eb',
+                todayTextColor: '#ef4444',
+                arrowColor: '#2563eb',
+              }}
+            />
+          </View>
+
+          {/* PRODUCTOS TOP */}
+          <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <Text className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Productos más vendidos
+            </Text>
+
+            {topProducts.length === 0 ? (
+              <Text className="text-slate-500">
+                No hubo ventas este día.
+              </Text>
+            ) : (
+              topProducts.map((item) => (
+                <View
+                  key={item.id}
+                  className="mb-3 flex-row items-center justify-between rounded-2xl bg-slate-50 p-4">
+
+                  <Text className="font-semibold text-slate-900">
+                    {item.name}
+                  </Text>
+
+                  <View className="rounded-full bg-blue-50 px-3 py-1">
+                    <Text className="font-bold text-blue-700">
+                      {item.total_sold}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+        </View>
+
+        {/* PANEL DERECHO */}
+        <View className="flex-1 gap-6">
+
+          {/* RESUMEN */}
+          <View className="rounded-3xl bg-slate-900 p-6 shadow-sm">
+
+            <Text className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Resumen
+            </Text>
+
+            <View className="mt-6 flex-row gap-10">
+
+              <View>
+                <Text className="text-sm text-slate-500">
+                  Total vendido
+                </Text>
+
+                <Text className="text-4xl font-black text-white">
+                  ${dayStats.total.toFixed(2)}
+                </Text>
+              </View>
+
+              <View>
+                <Text className="text-sm text-slate-500">
+                  Ventas realizadas
+                </Text>
+
+                <Text className="text-4xl font-black text-white">
+                  {dayStats.count}
+                </Text>
+              </View>
+
+            </View>
+
             <TouchableOpacity
-              className="mb-3 rounded-xl bg-white p-4 shadow"
-              onPress={() =>
-                navigation.navigate('SaleDetail', {
-                  saleId: item.id,
-                })
-              }>
-              <Text className="font-bold">Venta #{item.id}</Text>
+              className="mt-8 rounded-2xl bg-blue-600 p-5"
+              onPress={() => {
+                const today = getCurrentDate();
+                setSelectedDate(today);
+                loadSales(today);
+              }}>
 
-              <Text className="text-gray-600">Usuario: {item.user_name ?? 'N/A'}</Text>
+              <Text className="text-center text-lg font-black text-white">
+                Ver ventas de hoy
+              </Text>
 
-              <Text className="text-gray-600">Fecha: {item.created_at}</Text>
-
-              <Text className="mt-2 text-lg font-bold">${Number(item.total).toFixed(2)}</Text>
             </TouchableOpacity>
-          )}
-        />
-      </ScrollView>
-    </SafeAreaView>
-  );
+
+          </View>
+
+          {/* LISTA */}
+          <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <Text className="mb-5 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Ventas registradas
+            </Text>
+
+            <FlatList
+              data={sales}
+              scrollEnabled={false}
+              keyExtractor={(item) => item.id.toString()}
+              ItemSeparatorComponent={() => (
+                <View className="h-4" />
+              )}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                  onPress={() =>
+                    navigation.navigate('SaleDetail', {
+                      saleId: item.id,
+                    })
+                  }>
+
+                  <View className="flex-row items-center justify-between">
+
+                    <View>
+
+                      <Text className="text-lg font-bold text-slate-900">
+                        Venta #{item.id}
+                      </Text>
+
+                      <Text className="mt-1 text-slate-500">
+                        {item.user_name ?? 'Sin usuario'}
+                      </Text>
+
+                      <Text className="text-slate-500">
+                        {item.created_at}
+                      </Text>
+
+                    </View>
+
+                    <Text className="text-2xl font-black text-slate-900">
+                      ${Number(item.total).toFixed(2)}
+                    </Text>
+
+                  </View>
+
+                </TouchableOpacity>
+              )}
+            />
+
+          </View>
+
+        </View>
+      </View>
+    </ScrollView>
+  </SafeAreaView>
+);
 }

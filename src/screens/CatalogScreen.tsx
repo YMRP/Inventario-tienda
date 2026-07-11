@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { useCallback,  useState } from 'react';
+import { View, Text, TextInput,  TouchableOpacity, Alert, ScrollView } from 'react-native';
 
 import { Picker } from '@react-native-picker/picker';
 
@@ -250,77 +250,186 @@ export default function CatalogScreen() {
       Alert.alert('Error', 'No fue posible actualizar el estado.');
     }
   }
-  return (
-    <SafeAreaView className="flex-1 bg-white p-6">
-      <Text className="mb-6 text-2xl font-bold">Catálogos</Text>
+ return (
+  <SafeAreaView className="flex-1 bg-slate-50">
+    <ScrollView
+      className="flex-1"
+      contentContainerStyle={{ paddingHorizontal: 32, paddingTop: 32, paddingBottom: 60 }}>
+      {/* HEADER */}
+      <View className="mb-8 flex-row items-start justify-between">
+        <View>
+          <View className="mb-3 flex-row items-center gap-2">
+            <View className="h-3 w-3 rounded-full bg-blue-600" />
 
-      <Text className="mb-2 font-semibold">Tipo de catálogo</Text>
+            <Text className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Administración
+            </Text>
+          </View>
 
-      <Picker selectedValue={catalogType} onValueChange={setCatalogType}>
-        <Picker.Item label="Categorías" value="CATEGORIES" />
-        <Picker.Item label="Marcas" value="BRANDS" />
-        <Picker.Item label="Colores" value="COLORS" />
-        <Picker.Item label="Tallas" value="SIZES" />
-        <Picker.Item label="Plantillas" value="TEMPLATES" />
-      </Picker>
+          <Text className="text-3xl font-black text-slate-900">
+            Catálogos
+          </Text>
 
-      {(catalogType === 'SIZES' || catalogType === 'CATEGORIES') && (
-        <>
-          <Text className="mb-2 mt-6 font-semibold">Plantilla</Text>
+          <Text className="mt-2 text-base text-slate-500">
+            Administra categorías, marcas, colores, tallas y plantillas.
+          </Text>
+        </View>
+      </View>
 
-          <Picker selectedValue={selectedTemplate} onValueChange={setSelectedTemplate}>
-            <Picker.Item label="Seleccione una plantilla" value={0} />
+      <View className="flex-row items-start gap-6">
+        {/* PANEL IZQUIERDO */}
+        <View className="w-[380px] gap-6">
+          {/* TIPO */}
+          <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <Text className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Tipo de catálogo
+            </Text>
 
-            {templates.map((template) => (
-              <Picker.Item key={template.id} label={template.name} value={template.id} />
-            ))}
-          </Picker>
-        </>
-      )}
+            <Picker
+              selectedValue={catalogType}
+              onValueChange={setCatalogType}>
+              <Picker.Item label="Categorías" value="CATEGORIES" />
+              <Picker.Item label="Marcas" value="BRANDS" />
+              <Picker.Item label="Colores" value="COLORS" />
+              <Picker.Item label="Tallas" value="SIZES" />
+              <Picker.Item label="Plantillas" value="TEMPLATES" />
+            </Picker>
+          </View>
 
-      <Text className="mb-2 mt-6 font-semibold">Nombre</Text>
+          {(catalogType === 'SIZES' || catalogType === 'CATEGORIES') && (
+            <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <Text className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+                Plantilla
+              </Text>
 
-      <TextInput
-        className="rounded-lg border p-3"
-        value={newItemName}
-        onChangeText={setNewItemName}
-      />
+              <Picker
+                selectedValue={selectedTemplate}
+                onValueChange={setSelectedTemplate}>
+                <Picker.Item
+                  label="Seleccione una plantilla"
+                  value={0}
+                />
 
-      <TouchableOpacity className="mt-4 rounded-lg bg-blue-700 p-4" onPress={handleSave}>
-        <Text className="text-center font-bold text-white">
-          {editing ? 'Actualizar' : 'Guardar'}
-        </Text>
-      </TouchableOpacity>
+                {templates.map((template) => (
+                  <Picker.Item
+                    key={template.id}
+                    label={template.name}
+                    value={template.id}
+                  />
+                ))}
+              </Picker>
+            </View>
+          )}
 
-      <FlatList
-        className="mt-6"
-        data={items}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View className="mb-2 flex-row items-center rounded-lg border border-gray-200 bg-white p-4">
-            {/* Nombre */}
+          {/* FORMULARIO */}
+          <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <Text className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+              {editing ? 'Editar registro' : 'Nuevo registro'}
+            </Text>
+
+            <TextInput
+              placeholder="Nombre"
+              placeholderTextColor="#94a3b8"
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-lg font-bold text-slate-900"
+              value={newItemName}
+              onChangeText={setNewItemName}
+            />
+
             <TouchableOpacity
-              className="flex-1"
-              onPress={() => {
-                setEditing(true);
-                setEditingId(item.id);
-                setNewItemName(item.name);
-              }}>
-              <Text
-                className={`text-base font-semibold ${
-                  item.active === 1 ? 'text-black' : 'text-gray-400'
-                }`}>
-                {item.name}
+              className="mt-5 rounded-2xl bg-slate-900 p-4"
+              onPress={handleSave}>
+              <Text className="text-center font-bold text-white">
+                {editing ? 'Actualizar' : 'Guardar'}
               </Text>
             </TouchableOpacity>
-
-            {/* Botón activar/desactivar */}
-            <TouchableOpacity className="ml-4" onPress={() => toggleStatus(item)}>
-              <Text className="text-xl">{item.active === 1 ? 'x' : '🔴'}</Text>
-            </TouchableOpacity>
           </View>
-        )}
-      />
-    </SafeAreaView>
-  );
+        </View>
+
+        {/* PANEL DERECHO */}
+        <View className="flex-1 gap-6">
+          {/* RESUMEN */}
+          <View className="rounded-3xl bg-slate-900 p-6 shadow-sm">
+            <Text className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Resumen
+            </Text>
+
+            <View className="mt-5 flex-row gap-10">
+              <View>
+                <Text className="text-sm text-slate-500">
+                  Registros
+                </Text>
+
+                <Text className="text-4xl font-black text-white">
+                  {items.length}
+                </Text>
+              </View>
+
+              <View>
+                <Text className="text-sm text-slate-500">
+                  Catálogo
+                </Text>
+
+                <Text className="text-2xl font-black text-white">
+                  {catalogType.replace('_', ' ')}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* LISTA */}
+          <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <Text className="mb-6 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Registros
+            </Text>
+
+            {items.length === 0 ? (
+              <View className="items-center py-16">
+                <Text className="text-lg font-semibold text-slate-500">
+                  No hay registros.
+                </Text>
+              </View>
+            ) : (
+              <View className="gap-4">
+                {items.map((item) => (
+                  <View
+                    key={item.id}
+                    className="flex-row items-center rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                    <TouchableOpacity
+                      className="flex-1"
+                      onPress={() => {
+                        setEditing(true);
+                        setEditingId(item.id);
+                        setNewItemName(item.name);
+                      }}>
+                      <Text
+                        className={`text-xl font-black ${
+                          item.active
+                            ? 'text-slate-900'
+                            : 'text-slate-400'
+                        }`}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+
+                   
+
+                    <TouchableOpacity
+                      className="rounded-2xl border border-slate-200 bg-white px-5 py-3"
+                      onPress={() => toggleStatus(item)}>
+                      <Text className="font-bold text-slate-700">
+                        {item.active
+                          ? 'Desactivar'
+                          : 'Activar'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  </SafeAreaView>
+);
 }

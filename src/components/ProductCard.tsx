@@ -1,51 +1,56 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import {  Props } from "@/types/types";
+// components/ProductCard.tsx
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Props } from '@/types/types';
 
+export default function ProductCard({ product, onPress }: Props) {
+  const stock = product.total_stock ?? 0;
+  const stockTone =
+    stock === 0
+      ? { bg: 'bg-red-50', dot: 'bg-red-500', text: 'text-red-700', label: 'Agotado' }
+      : stock < 10
+        ? { bg: 'bg-amber-50', dot: 'bg-amber-500', text: 'text-amber-700', label: 'Bajo' }
+        : { bg: 'bg-emerald-50', dot: 'bg-emerald-500', text: 'text-emerald-700', label: 'Disponible' };
 
-export default function ProductCard({
-  product,
-  onPress,
-}: Props) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-white rounded-xl p-4 mb-4 border border-gray-200 shadow-sm"
-    >
-      <Text className="text-lg font-bold">
+      activeOpacity={0.85}
+      className="mb-2 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      {/* Header: categoría + badge stock */}
+      <View className="mb-3 flex-row items-center justify-between">
+        <Text className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          {product.category}
+        </Text>
+        <View className={`flex-row items-center gap-1.5 rounded-full ${stockTone.bg} px-3 py-1`}>
+          <View className={`h-2 w-2 rounded-full ${stockTone.dot}`} />
+          <Text className={`text-xs font-bold ${stockTone.text}`}>{stockTone.label}</Text>
+        </View>
+      </View>
+
+      {/* Nombre */}
+      <Text className="text-lg font-black text-slate-900" numberOfLines={2}>
         {product.name}
       </Text>
+      <Text className="mt-0.5 text-sm text-slate-500">{product.brand}</Text>
 
-      <Text className="text-gray-600 mt-1">
-        Marca: {product.brand}
-      </Text>
-
-      <Text className="text-gray-600">
-        Categoría: {product.category}
-      </Text>
-
-      <Text className="text-blue-700 font-semibold mt-2">
+      {/* Precio destacado */}
+      <Text className="mt-4 text-2xl font-black text-blue-700">
         ${product.sale_price.toFixed(2)}
       </Text>
 
-      <View className="flex-row justify-between mt-4">
-        <View>
-          <Text className="text-xs text-gray-500">
+      {/* Footer stats en grid */}
+      <View className="mt-4 flex-row rounded-2xl bg-slate-50 p-3">
+        <View className="flex-1 border-r border-slate-200">
+          <Text className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Stock
           </Text>
-
-          <Text className="font-bold text-green-700">
-            {product.total_stock}
-          </Text>
+          <Text className="text-lg font-black text-slate-900">{stock}</Text>
         </View>
-
-        <View>
-          <Text className="text-xs text-gray-500">
+        <View className="flex-1 pl-3">
+          <Text className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Variantes
           </Text>
-
-          <Text className="font-bold">
-            {product.variants}
-          </Text>
+          <Text className="text-lg font-black text-slate-900">{product.variants}</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -1,6 +1,6 @@
 import { login } from '@/auth/auth';
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '@/types/types';
@@ -36,39 +36,40 @@ function Login() {
   };
 
   return (
-    <View className="flex-1 justify-center  px-8 bg-blue-400 items-center">
+    <ImageBackground source={require('../../assets/bg.png')} style={{flex: 1}} resizeMode='cover'>
+      <View className="flex-1 items-center  justify-center  px-8">
+        <View className="w-1/2 rounded-2xl bg-white p-10 shadow-xl">
+          <Text className="mb-10 text-center text-3xl font-bold text-blue-700">
+            Gestión y control de inventario
+          </Text>
 
-      <View className='bg-white rounded-2xl shadow-xl p-10 w-1/2'>
-        <Text className="mb-10 text-center text-3xl font-bold text-blue-700">
-          Gestión y control de inventario
-        </Text>
+          <Text className="mb-2 text-base font-semibold">Usuario</Text>
 
-        <Text className="mb-2 text-base font-semibold">Usuario</Text>
+          <TextInput
+            className="mb-5 rounded-lg border border-gray-300 p-3 text-black"
+            placeholder="Ingresa tu nombre de usuario"
+            value={username}
+            onChangeText={setUsername}
+          />
 
-        <TextInput
-          className="mb-5 rounded-lg border border-gray-300 p-3 text-black"
-          placeholder="Ingresa tu nombre de usuario"
-          value={username}
-          onChangeText={setUsername}
-        />
+          <Text className="mb-2 text-base font-semibold">Contraseña</Text>
 
-        <Text className="mb-2 text-base font-semibold">Contraseña</Text>
+          <TextInput
+            className="mb-8 rounded-lg border border-gray-300 p-3 text-black"
+            placeholder="Ingresa tu contraseña"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
 
-        <TextInput
-          className="mb-8 rounded-lg border border-gray-300 p-3 text-black"
-          placeholder="Ingresa tu contraseña"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+          <TouchableOpacity className="rounded-lg bg-blue-600 p-4" onPress={handeLogin}>
+            <Text className="text-center font-bold text-white">Iniciar sesión</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity className="rounded-lg bg-blue-600 p-4" onPress={handeLogin}>
-          <Text className="text-center font-bold text-white">Iniciar sesión</Text>
-        </TouchableOpacity>
+        <Text className="mt-6 text-center text-red-600">{message}</Text>
       </View>
-
-      <Text className="mt-6 text-center text-red-600">{message}</Text>
-    </View>
+    </ImageBackground>
   );
 }
 
