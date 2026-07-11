@@ -32,7 +32,7 @@ export default BarcodeSheet;
 
 const styles = StyleSheet.create({
   sheet: {
-    width: 816,
+    width: 1080,
     padding: 20,
     flexDirection: 'row',
     flexWrap: 'wrap',
