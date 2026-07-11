@@ -1,9 +1,9 @@
 import { View, Text, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { getCurrentUser } from '@/auth/auth';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { CatalogItem, RootStackParamList } from '@/types/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   createVariant,
   generateUniqueBarcode,
@@ -38,9 +38,11 @@ export default function NewVariant() {
   const route = useRoute<NewVariantRouteProp>();
 
   const { productId, categoryId } = route.params;
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadData();
-  }, []);
+  }, [])
+);
 
   async function handleSaveVariant() {
     try {

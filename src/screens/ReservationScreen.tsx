@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getAllReservations } from '@/repositories/reservationRepository';
-import {  RootStackParamList, ReservationProps } from '@/types/types';
+import { RootStackParamList, ReservationProps } from '@/types/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReservationsScreen() {
@@ -13,9 +13,11 @@ export default function ReservationsScreen() {
   type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'Reservations'>;
 
   const navigation = useNavigation<NavigationProps>();
-  useEffect(() => {
-    load();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [])
+  );
 
   async function load() {
     const data = await getAllReservations();
@@ -31,7 +33,7 @@ export default function ReservationsScreen() {
   }
 
   return (
-    <SafeAreaView className='flex-1'>
+    <SafeAreaView className="flex-1">
       <View className="flex-1 bg-gray-100 p-4">
         <Text className="mb-4 text-2xl font-bold">Apartados</Text>
 

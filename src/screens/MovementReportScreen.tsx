@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ScrollView,
@@ -11,6 +11,7 @@ import {
 
 import { getInventoryMovementsReport } from '@/repositories/reportRepository';
 import { InventoryMovementReport } from '@/types/types';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function MovementReportScreen() {
   const [loading, setLoading] = useState(true);
@@ -21,9 +22,11 @@ export default function MovementReportScreen() {
     'ALL' | 'ENTRY' | 'SALE' | 'RESERVATION' | 'RESERVATION_CANCEL' | 'ADJUSTMENT'
   >('ALL');
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadMovements();
-  }, []);
+  }, [])
+);
 
   async function loadMovements() {
     try {

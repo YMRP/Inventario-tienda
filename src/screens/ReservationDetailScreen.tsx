@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback,  useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 
 import {
   getReservationDetail,
@@ -19,9 +19,11 @@ export default function ReservationDetailScreen() {
 
   const [items, setItems] = useState<ReservationDetailItem[]>([]);
   const [reservation, setReservation] = useState<ReservationProps | null>(null);
-  useEffect(() => {
-    loadDetail();
-  }, [handleCancel, handleConvert]);
+  useFocusEffect(
+    useCallback(() => {
+      loadDetail();
+    }, [handleCancel, handleConvert])
+  );
 
   async function loadDetail() {
     const [detail, header] = await Promise.all([
@@ -134,9 +136,11 @@ export default function ReservationDetailScreen() {
 
             <TouchableOpacity
               className='className="mb-52 p-4" mt-3 rounded-xl bg-yellow-600'
-              onPress={()=>{navigation.navigate('Dashboard')}}>
-                <Text className='text-center font-bold text-white'>INICIO</Text>
-              </TouchableOpacity>
+              onPress={() => {
+                navigation.navigate('Dashboard');
+              }}>
+              <Text className="text-center font-bold text-white">INICIO</Text>
+            </TouchableOpacity>
           </>
         )}
       </View>

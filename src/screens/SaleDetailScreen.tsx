@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { getSaleDetail } from '@/repositories/SalesRepository';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SaleDetailScreen() {
@@ -10,9 +10,11 @@ export default function SaleDetailScreen() {
 
   const [items, setItems] = useState<any[]>([]);
 
-  useEffect(() => {
-    load();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [])
+  );
 
   async function load() {
     const data = await getSaleDetail(saleId);

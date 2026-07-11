@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { RootStackParamList } from '@/types/types';
@@ -26,10 +26,16 @@ export default function SalesScreen() {
   });
 
   useEffect(() => {
+    
+  }, []);
+
+  useFocusEffect(
+  useCallback(() => {
     const today = getCurrentDate();
     setSelectedDate(today);
     loadSales(today);
-  }, []);
+  }, [])
+);
 
   async function loadSales(date?: string) {
     const [salesData, totalData, topData] = await Promise.all([

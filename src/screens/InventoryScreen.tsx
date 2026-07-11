@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Picker } from '@react-native-picker/picker';
 import { getAllCategories } from '@/repositories/productRepository';
@@ -42,9 +42,11 @@ export default function InventoryScreen() {
   const [restockQuantity, setRestockQuantity] = useState('');
 
   const [restockNotes, setRestockNotes] = useState('');
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadProducts();
-  }, [filter]);
+  }, [filter])
+);
 
   useEffect(() => {
     async function test() {

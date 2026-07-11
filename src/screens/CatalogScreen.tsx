@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
 
 import { Picker } from '@react-native-picker/picker';
@@ -36,6 +36,7 @@ import {
 
 import { CatalogItem } from '@/types/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function CatalogScreen() {
   const [catalogType, setCatalogType] = useState('CATEGORIES');
@@ -50,13 +51,17 @@ export default function CatalogScreen() {
   const [editing, setEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadTemplates();
-  }, []);
+  }, [])
+);
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadCatalog();
-  }, [catalogType, selectedTemplate]);
+  }, [catalogType,selectedTemplate])
+);
 
   async function loadTemplates() {
     const data = await getVariantTemplates();

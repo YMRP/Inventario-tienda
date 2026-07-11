@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { logout, getCurrentUser } from '@/auth/auth';
 import { BarcodeLabel, RootStackParamList } from '@/types/types';
@@ -141,13 +141,17 @@ export default function Dashboard() {
     exportPdf();
   }, [barcodeReady]);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadStats();
+    }, [])
+  );
 
-  useEffect(() => {
-    expireReservations();
-  }, []);
+ useFocusEffect(
+    useCallback(() => {
+      expireReservations();
+    }, [])
+  );
 
   async function loadDashboard() {
     try {
