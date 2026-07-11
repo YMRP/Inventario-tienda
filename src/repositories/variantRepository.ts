@@ -203,18 +203,34 @@ export async function getVariantsByProduct(productId: number): Promise<ProductVa
     [productId]
   );
 }
-export async function getVariantByBarcode(barcode: string): Promise<VariantBarcodeResult | null> {
+export async function getVariantByBarcode(
+  barcode: string
+): Promise<VariantBarcodeResult | null> {
   return await getOne<VariantBarcodeResult>(
     `
     SELECT
-  v.id,
-  v.available_stock,
-  v.reserved_stock,
-  p.name AS product_name,
-  p.sale_price
-FROM product_variants v
-JOIN products p ON p.id = v.product_id
-WHERE v.barcode = ?
+      v.id,
+      v.available_stock,
+      v.reserved_stock,
+
+      p.name AS product_name,
+      p.sale_price,
+
+      c.name AS color,
+      s.name AS size
+
+    FROM product_variants v
+
+    INNER JOIN products p
+      ON p.id = v.product_id
+
+    INNER JOIN colors c
+      ON c.id = v.color_id
+
+    INNER JOIN sizes s
+      ON s.id = v.size_id
+
+    WHERE v.barcode = ?
     `,
     [barcode]
   );

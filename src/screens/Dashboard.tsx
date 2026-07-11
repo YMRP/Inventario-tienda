@@ -147,7 +147,7 @@ export default function Dashboard() {
     }, [])
   );
 
- useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
       expireReservations();
     }, [])

@@ -151,6 +151,7 @@ export default function MovementReportScreen() {
           </Text>
         </TouchableOpacity>
         <TextInput
+        className='text-black'
           value={search}
           onChangeText={setSearch}
           placeholder="Buscar producto..."
@@ -161,7 +162,7 @@ export default function MovementReportScreen() {
             paddingHorizontal: 14,
             paddingVertical: 10,
             marginBottom: 20,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#FFFFFF', 
           }}
         />
         {filteredMovements.length === 0 && <Text>No existen movimientos registrados.</Text>}

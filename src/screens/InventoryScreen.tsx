@@ -132,7 +132,7 @@ export default function InventoryScreen() {
           {filter === 'OUT_OF_STOCK' && 'Productos agotados'}
         </Text>
         <TextInput
-          className="mx-5 mb-5 rounded-xl border bg-white p-4"
+          className="mx-5 mb-5 rounded-xl border bg-white p-4 text-black"
           placeholder="Buscar producto..."
           value={search}
           onChangeText={handleSearch}
@@ -140,12 +140,13 @@ export default function InventoryScreen() {
         <Text className="mx-5 mb-2 font-semibold">Categoría</Text>
 
         <Picker
+        className='text-black'
           selectedValue={selectedCategory}
           onValueChange={(value) => {
             setSelectedCategory(value);
             applyFilters(search, value);
           }}>
-          <Picker.Item label="Todas" value="ALL" />
+          <Picker.Item  label="Todas" value="ALL" />
 
           {categories.map((category) => (
             <Picker.Item key={category.id} label={category.name} value={category.name} />

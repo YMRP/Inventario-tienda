@@ -46,7 +46,7 @@ function Login() {
         <Text className="mb-2 text-base font-semibold">Usuario</Text>
 
         <TextInput
-          className="mb-5 rounded-lg border border-gray-300 p-3"
+          className="mb-5 rounded-lg border border-gray-300 p-3 text-black"
           placeholder="Ingresa tu nombre de usuario"
           value={username}
           onChangeText={setUsername}
@@ -55,7 +55,7 @@ function Login() {
         <Text className="mb-2 text-base font-semibold">Contraseña</Text>
 
         <TextInput
-          className="mb-8 rounded-lg border border-gray-300 p-3"
+          className="mb-8 rounded-lg border border-gray-300 p-3 text-black"
           placeholder="Ingresa tu contraseña"
           secureTextEntry
           value={password}

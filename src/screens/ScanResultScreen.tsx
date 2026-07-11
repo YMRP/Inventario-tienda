@@ -136,8 +136,8 @@ export default function ScanResultScreen() {
         unitPrice: variant.sale_price,
         quantity: 1,
         availableStock: availableToSell,
-        color: '',
-        size: '',
+        color: variant.color,
+        size: variant.size,
       });
 
       setBarcode('');
@@ -278,9 +278,10 @@ export default function ScanResultScreen() {
                 <View className="mb-4 rounded-lg border bg-gray-50 p-3">
                   <Text className="text-lg font-semibold">{item.name}</Text>
 
-                  <Text className="text-gray-600">
+                  <Text className="text-gray-600 ">
                     {item.color} • Talla {item.size}
                   </Text>
+                
 
                   <Text className="mt-1">Precio: ${item.unitPrice.toFixed(2)}</Text>
                   <Text className="mt-1">Stock disponible: {item.availableStock}</Text>
@@ -370,17 +371,17 @@ export default function ScanResultScreen() {
           {/* Formulario de Apartados (Si está activo, aparece abajo en la columna 2) */}
           {showReservationForm && (
             <View className="mt-4 rounded-xl bg-white p-4">
-              <Text className="mb-2 font-bold">Datos del apartado</Text>
+              <Text className="mb-2 font-bold text-black">Datos del apartado</Text>
 
               <TextInput
-                className="mb-3 rounded-lg border bg-gray-50 p-3"
+                className="mb-3 rounded-lg border bg-gray-50 p-3 text-black"
                 placeholder="Nombre del cliente"
                 value={customerName}
                 onChangeText={setCustomerName}
               />
 
               <TextInput
-                className="mb-3 rounded-lg border bg-gray-50 p-3"
+                className="mb-3 rounded-lg border bg-gray-50 p-3 text-black"
                 placeholder="Teléfono"
                 value={customerPhone}
                 onChangeText={setCustomerPhone}
@@ -388,7 +389,7 @@ export default function ScanResultScreen() {
               />
 
               <TextInput
-                className="mb-3 rounded-lg border bg-gray-50 p-3"
+                className="mb-3 rounded-lg border bg-gray-50 p-3 text-black"
                 placeholder="Días para recoger"
                 value={daysToHold}
                 onChangeText={setDaysToHold}
