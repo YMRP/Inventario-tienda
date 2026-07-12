@@ -4,12 +4,7 @@ import { Props } from '@/types/types';
 
 export default function ProductCard({ product, onPress }: Props) {
   const stock = product.total_stock ?? 0;
-  const stockTone =
-    stock === 0
-      ? { bg: 'bg-red-50', dot: 'bg-red-500', text: 'text-red-700', label: 'Agotado' }
-      : stock < 10
-        ? { bg: 'bg-amber-50', dot: 'bg-amber-500', text: 'text-amber-700', label: 'Bajo' }
-        : { bg: 'bg-emerald-50', dot: 'bg-emerald-500', text: 'text-emerald-700', label: 'Disponible' };
+  
 
   return (
     <TouchableOpacity
@@ -21,10 +16,7 @@ export default function ProductCard({ product, onPress }: Props) {
         <Text className="text-xs font-bold uppercase tracking-wider text-slate-400">
           {product.category}
         </Text>
-        <View className={`flex-row items-center gap-1.5 rounded-full ${stockTone.bg} px-3 py-1`}>
-          <View className={`h-2 w-2 rounded-full ${stockTone.dot}`} />
-          <Text className={`text-xs font-bold ${stockTone.text}`}>{stockTone.label}</Text>
-        </View>
+        
       </View>
 
       {/* Nombre */}
